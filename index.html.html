@@ -1,0 +1,929 @@
+<title>Scramblehandicap</title>
+<style>
+  :root{
+    --green-950:#0f2b21;
+    --green-800:#1b4433;
+    --green-600:#2f6b4f;
+    --green-500:#3c8060;
+    --cream-50:#f7f4ec;
+    --cream-100:#efe9d8;
+    --gold-500:#b9902a;
+    --gold-600:#96721e;
+    --red-600:#a4402f;
+    --ink-900:#1a211c;
+    --ink-600:#4b564e;
+    --line:#d9d1bd;
+    --surface:#ffffff;
+    --bg:var(--cream-50);
+    --on-accent:#ffffff;
+    --shadow: 0 1px 2px rgba(26,33,28,0.06), 0 8px 24px rgba(26,33,28,0.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d1a14;
+      --surface:#132a20;
+      --ink-900:#eef3ec;
+      --ink-600:#a9baad;
+      --line:#264334;
+      --cream-100:#173225;
+      --green-500:#5aa77e;
+      --green-600:#4c9670;
+      --gold-500:#d9b357;
+      --gold-600:#e6c56f;
+      --red-600:#e0806c;
+      --on-accent:#0d1a14;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1a14;
+    --surface:#132a20;
+    --ink-900:#eef3ec;
+    --ink-600:#a9baad;
+    --line:#264334;
+    --cream-100:#173225;
+    --green-500:#5aa77e;
+    --green-600:#4c9670;
+    --gold-500:#d9b357;
+    --gold-600:#e6c56f;
+    --red-600:#e0806c;
+    --on-accent:#0d1a14;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 32px rgba(0,0,0,0.4);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink-900);
+    font-family:"Work Sans", ui-sans-serif, system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:32px;
+    display:flex;
+    justify-content:center;
+  }
+  h1,h2,h3{ font-family:"Fraunces", Georgia, serif; }
+
+  .page{ width:100%; max-width:680px; display:flex; flex-direction:column; gap:20px; }
+
+  .masthead{ display:flex; align-items:center; gap:14px; }
+  .flag{ flex:0 0 auto; }
+  .masthead h1{
+    font-size:clamp(1.5rem,4vw,1.9rem);
+    font-weight:600;
+    margin:0;
+    color:var(--green-800,var(--green-600));
+    text-wrap:balance;
+  }
+  :root:not([data-theme="light"]) .masthead h1{ color:var(--ink-900); }
+  .masthead p{ margin:2px 0 0; color:var(--ink-600); font-size:0.9rem; }
+
+  .teams-container{ display:flex; flex-direction:column; gap:16px; }
+
+  .add-team-row{ display:flex; justify-content:flex-start; }
+  .add-team-btn{
+    font:inherit;
+    font-size:0.85rem;
+    font-weight:600;
+    border:1px dashed var(--green-600);
+    background:transparent;
+    color:var(--green-600);
+    padding:9px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+  }
+  .add-team-btn:hover{ background:var(--cream-100); }
+  .add-team-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
+  .add-team-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .player-count-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background:var(--cream-100);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:18px;
+  }
+  .count-label{
+    font-size:0.76rem; font-weight:700; color:var(--ink-600);
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .count-toggle{
+    display:inline-flex;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px;
+    background:var(--surface);
+    gap:2px;
+  }
+  .count-btn{
+    font:inherit;
+    font-size:0.85rem;
+    font-weight:700;
+    border:none;
+    background:transparent;
+    color:var(--ink-600);
+    padding:7px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .count-btn:hover{ color:var(--ink-900); }
+  .count-btn.active{ background:var(--green-600); color:var(--on-accent); }
+  .count-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:20px;
+  }
+
+  .team-card-header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px; margin-bottom:12px;
+  }
+  .team-name-input{
+    font-family:"Fraunces", Georgia, serif;
+    font-size:1.25rem;
+    font-weight:600;
+    border:none;
+    background:transparent;
+    color:var(--green-800,var(--green-600));
+    padding:2px 0;
+    width:auto;
+    max-width:220px;
+    flex:1;
+    min-width:0;
+  }
+  :root:not([data-theme="light"]) .team-name-input{ color:var(--ink-900); }
+  .team-name-input:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; border-radius:4px; }
+
+  .remove-team-btn{
+    flex:0 0 auto;
+    width:30px; height:30px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-600);
+    font-size:1rem;
+    line-height:1;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .remove-team-btn:hover{ background:var(--red-600); color:var(--on-accent); border-color:var(--red-600); }
+  .remove-team-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
+  .remove-team-btn[hidden]{ display:none; }
+
+  .players{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px){ .players{ grid-template-columns:1fr; } }
+
+  .player{ display:flex; flex-direction:column; gap:10px; }
+  .player[hidden]{ display:none; }
+  .player .badge{
+    align-self:flex-start;
+    font-size:0.72rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--green-600);
+    background:var(--cream-100);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:3px 10px;
+    font-weight:600;
+  }
+  label{ font-size:0.82rem; color:var(--ink-600); display:flex; flex-direction:column; gap:4px; }
+  input[type="text"],input[type="number"]{
+    font:inherit;
+    font-variant-numeric:tabular-nums;
+    font-size:1rem;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-900);
+    width:100%;
+  }
+  input:focus-visible{ outline:2px solid var(--green-500); outline-offset:1px; }
+
+  .advanced-toggle{
+    display:flex; align-items:center; gap:8px;
+    font-size:0.84rem; color:var(--ink-600);
+    cursor:pointer; user-select:none;
+    margin-top:2px;
+  }
+  .advanced-toggle input{ width:auto; accent-color:var(--green-600); }
+
+  .advanced-fields{ display:flex; flex-direction:column; gap:8px; }
+  .advanced-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+  }
+  .advanced-grid label{ font-size:0.72rem; }
+  .advanced-grid input{ padding:7px 8px; font-size:0.9rem; }
+
+  .course-picker{ display:flex; gap:6px; flex-wrap:wrap; }
+  .course-columns{ display:flex; gap:6px; flex:1; min-width:0; flex-wrap:wrap; }
+  .course-bana-select, .course-tee-select{
+    flex:1 1 120px; min-width:110px;
+    font:inherit;
+    font-size:0.78rem;
+    padding:7px 8px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-900);
+  }
+  .course-tee-select:disabled{ opacity:0.55; cursor:not-allowed; }
+  .course-btn{
+    flex:0 0 auto;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink-600);
+    border-radius:6px;
+    padding:6px 9px;
+    font-size:0.85rem;
+    line-height:1;
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .course-btn:hover{ background:var(--cream-100); color:var(--ink-900); }
+  .course-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
+
+  .divider{ border:none; border-top:1px solid var(--line); margin:18px 0; }
+
+  .result{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    text-align:center;
+  }
+  .result .label{ font-size:0.8rem; color:var(--ink-600); letter-spacing:0.04em; text-transform:uppercase; }
+  .result .value{
+    font-family:"Fraunces", Georgia, serif;
+    font-size:clamp(2.4rem,9vw,3rem);
+    font-weight:600;
+    color:var(--gold-600);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+  }
+  .result .sub{ font-size:0.85rem; color:var(--ink-600); }
+
+  .breakdown{
+    margin-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:0.88rem;
+    font-variant-numeric:tabular-nums;
+  }
+  .breakdown .row{
+    display:flex; justify-content:space-between; gap:12px;
+    padding:6px 10px;
+    border-radius:8px;
+  }
+  .breakdown .row.total{
+    background:var(--cream-100);
+    font-weight:600;
+    color:var(--ink-900);
+  }
+  .breakdown .row span:first-child{ color:var(--ink-600); }
+  .breakdown .row.total span:first-child{ color:var(--ink-900); }
+
+  .leaderboard-title{ font-size:1.15rem; font-weight:600; margin:0 0 4px; }
+  .leaderboard-hint{ font-size:0.82rem; color:var(--ink-600); margin:0 0 14px; }
+
+  .table-wrap{ overflow-x:auto; }
+  table.leaderboard{
+    width:100%;
+    border-collapse:collapse;
+    font-variant-numeric:tabular-nums;
+    min-width:480px;
+  }
+  table.leaderboard th{
+    text-align:left;
+    font-size:0.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-600);
+    padding:0 8px 8px;
+    border-bottom:2px solid var(--line);
+  }
+  table.leaderboard td{
+    padding:10px 8px;
+    border-bottom:1px solid var(--line);
+    font-size:0.92rem;
+    vertical-align:middle;
+  }
+  table.leaderboard tr:last-child td{ border-bottom:none; }
+  td.lb-rank{ font-weight:700; width:1%; white-space:nowrap; }
+  td.lb-net{ font-weight:700; }
+  input.gross-input{ width:84px; padding:7px 8px; }
+  tr.winner-row td{ background:var(--cream-100); }
+  tr.winner-row td.lb-rank{ color:var(--gold-600); }
+
+  .note{
+    font-size:0.8rem;
+    color:var(--ink-600);
+    line-height:1.5;
+  }
+  .note strong{ color:var(--ink-900); }
+
+  footer{ text-align:center; font-size:0.76rem; color:var(--ink-600); padding-bottom:8px; }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap">
+
+<div class="page">
+  <div class="masthead">
+    <svg class="flag" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="11" y1="4" x2="11" y2="36" stroke="currentColor" stroke-width="2" style="color:var(--ink-600)"/>
+      <path d="M11 5 L30 10 L11 16 Z" fill="var(--gold-500)"/>
+      <ellipse cx="20" cy="36.5" rx="13" ry="2.2" fill="var(--green-500)" opacity="0.35"/>
+    </svg>
+    <div>
+      <h1>Scramblehandicap</h1>
+      <p>Räkna ut och tävla med flera lag i scramble</p>
+    </div>
+  </div>
+
+  <div class="teams-container" id="teams-container"></div>
+
+  <div class="add-team-row">
+    <button type="button" id="add-team-btn" class="add-team-btn">+ Lägg till lag</button>
+  </div>
+
+  <div class="card" id="leaderboard-card">
+    <h2 class="leaderboard-title">Resultattabell</h2>
+    <p class="leaderboard-hint" id="leaderboard-hint">Fyll i bruttoresultat för varje lag för att se placeringen.</p>
+    <div class="table-wrap">
+      <table class="leaderboard">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Lag</th>
+            <th>Handicap</th>
+            <th>Brutto</th>
+            <th>Netto</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="note" id="formula-note">
+    Beräkningen utgår från <strong>30,0 % av lägsta + 13,5 % av 2:a lägsta</strong> banahandicap.
+    Grunden är samma princip som World Handicap System — störst vikt till de lägsta handicappen — men extra
+    spelare kan bara <strong>dra av</strong> från summan, aldrig lägga till. Laget kan därför aldrig få ett
+    sämre (högre) handicap av att ta med fler spelare. Slå på "Beräkna banahandicap" för en spelare om du bara
+    har handicap index, slope och course rating (CR) — banahandicap räknas då som
+    <strong>index × slope / 113 + (CR − par)</strong>, avrundat till närmaste heltal. I resultattabellen räknas
+    <strong>netto = brutto − lagets handicap</strong>, och lag med lägst netto vinner. Bansväljaren innehåller
+    golfbanor i Uppsala län samt fem kända Stockholmsklubbar (sammanställt från klubbarnas scorekort, hämtat
+    september 2026) — "?" betyder att uppgiften inte gick att verifiera. Kontrollera alltid mot klubbens
+    officiella scorekort inför en tävling.
+  </p>
+
+  <footer>Ange värden ovan — beräkningen uppdateras direkt.</footer>
+</div>
+
+<script>
+(function(){
+  var PREFIXES = ['a','b','c','d'];
+  // De två bästa spelarna sätter grunden (BASE_W, fast oavsett lagstorlek).
+  // Var extra spelare (rank 3, rank 4) kan bara DRA AV från den grunden — aldrig lägga till —
+  // så laget kan aldrig få ett sämre (högre) handicap av att ta med fler spelare, inte ens
+  // en spelare med maxhandicap 54. Avdraget krymper för varje ytterligare spelare
+  // (DEDUCT_K sjunker), så effekten avtar exponentiellt ju fler som redan är med.
+  var BASE_W = [0.30, 0.135];
+  var DEDUCT_K = [0.03, 0.02];
+  var MAX_TEAMS = 12;
+
+  var teamOrder = [];
+  var nextTeamId = 1;
+  var counts = {};
+  var courses = [];
+
+  // Inbyggd bansdatabas: golfbanor i Uppsala län + fem kända Stockholmsklubbar.
+  // [bana, ort, tee, kön ("H"/"D"), slope, CR, par] — null där uppgiften inte gick att verifiera.
+  // Källa: klubbarnas scorekort + 1golf.eu/GolfPass (sammanställt av användaren, hämtat sep 2026).
+  var PRESET_RAW = [["Upsala GK - Stora (18 hål)","Uppsala","62","H",140,74.5,72],["Upsala GK - Stora (18 hål)","Uppsala","59","H",130,72.5,72],["Upsala GK - Stora (18 hål)","Uppsala","56","H",128,71.3,72],["Upsala GK - Stora (18 hål)","Uppsala","51","H",123,69.5,72],["Upsala GK - Stora (18 hål)","Uppsala","51","D",138,73.8,72],["Upsala GK - Stora (18 hål)","Uppsala","47","H",119,65.5,72],["Upsala GK - Stora (18 hål)","Uppsala","47","D",130,71.3,72],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Vit","H",null,68.0,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Svart","D",null,73.2,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","H",null,66.9,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","D",null,72.3,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","H",null,63.5,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","D",null,67.8,70],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Gul","H",null,58.1,62],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Röd","D",null,57.8,62],["GolfUppsala Söderby (18 hål)","Uppsala","67","H",135,74.0,73],["GolfUppsala Söderby (18 hål)","Uppsala","64","H",133,73.3,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","H",125,70.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","D",139,76.5,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","H",119,67.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","D",128,73.8,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","H",110,64.9,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","D",123,70.1,73],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","H",93,59.1,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","D",98,60.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","H",91,58.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","D",95,59.4,30],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Vit","H",137,73.0,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","H",131,71.8,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","D",137,76.6,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","H",128,68.3,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","D",130,73.7,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","H",122,65.9,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","D",124,70.7,72],["Grönlund GK (18 hål)","Uppsala (Almunge)","Vit","H",125,71.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","H",123,69.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","H",117,67.3,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","D",131,75.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","D",126,73.0,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","H",109,64.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","D",115,69.6,71],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Vit","H",134,72.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Gul","H",127,70.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Blå","H",120,68.2,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Röd","H",112,64.9,null],["Vassunda GK (18 hål)","Knivsta","Vit","H",133,73.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","H",129,71.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","D",134,77.2,72],["Vassunda GK (18 hål)","Knivsta","Blå","H",124,69.0,72],["Vassunda GK (18 hål)","Knivsta","Blå","D",129,74.4,72],["Vassunda GK (18 hål)","Knivsta","Röd","H",121,67.1,72],["Vassunda GK (18 hål)","Knivsta","Röd","D",124,72.0,72],["Enköpings GK (18 hål)","Enköping","Gul","H",121,69.4,71],["Enköpings GK (18 hål)","Enköping","Gul","D",133,75.3,71],["Enköpings GK (18 hål)","Enköping","Blå","H",119,67.3,71],["Enköpings GK (18 hål)","Enköping","Röd","H",114,65.0,71],["Enköpings GK (18 hål)","Enköping","Röd","D",122,70.1,71],["Enköpings GK (18 hål)","Enköping","Blå","D",126,72.7,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","H",116,67.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","D",126,73.0,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","H",121,69.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","D",131,75.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","H",111,65.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","D",120,70.2,71],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","H",122,67.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","D",126,73.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Orange","D",112,66.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","H",126,69.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","D",131,75.7,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","H",119,65.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","D",121,70.9,70],["Örbyhus GK (18 hål)","Tierp","Vit","H",148,76.0,72],["Örbyhus GK (18 hål)","Tierp","Gul","H",142,73.2,72],["Örbyhus GK (18 hål)","Tierp","Gul","D",143,79.5,72],["Örbyhus GK (18 hål)","Tierp","Blå","H",138,71.2,72],["Örbyhus GK (18 hål)","Tierp","Blå","D",138,77.0,72],["Örbyhus GK (18 hål)","Tierp","Röd","H",133,68.5,72],["Örbyhus GK (18 hål)","Tierp","Röd","D",131,73.8,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Vit","H",131,72.9,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","H",128,71.1,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","D",135,77.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","H",123,69.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","D",129,74.5,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","H",115,65.2,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","D",119,69.8,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","H",137,72.6,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","D",139,80.5,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","H",128,67.9,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","D",127,74.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 56 (motsv. Vit)","H",131,70.2,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","H",130,69.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","D",136,75.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","H",125,67.4,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","D",130,72.9,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","H",122,65.7,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","D",126,70.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 38 (Orange, dam)","D",114,65.6,72],["Stockholms GK - Kevinge (18 hål)","Danderyd","Vit","H",129,69.9,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","H",126,68.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","D",136,74.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","H",122,66.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","D",131,71.8,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","H",119,65.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","D",126,70.0,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Svart","H",120,67.4,69],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee I","H",139,74.1,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","H",135,71.6,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","D",142,78.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","H",131,70.0,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","D",138,76.3,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","H",126,66.9,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","D",132,73.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee V","D",121,68.1,72],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Vit","H",136,71.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","H",132,70.4,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","D",133,76.0,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","H",129,68.5,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","D",128,73.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","H",126,66.9,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","D",123,71.8,71],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","H",109,64.3,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","D",120,68.8,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","H",105,62.7,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","D",113,65.7,68],["Ullna Golf Club (18 hål)","Åkersberga","Vit","H",143,73.8,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","H",143,71.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","D",139,78.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","H",138,69.0,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","D",137,75.6,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","H",115,64.5,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","D",132,69.8,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Svart","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72]];
+  var PRESET_COURSES = PRESET_RAW.map(function(r){
+    return { bana: r[0], ort: r[1], tee: r[2], kon: r[3], slope: r[4], cr: r[5], par: r[6] };
+  });
+
+  var BANA_LIST = (function(){
+    var seen = {};
+    var list = [];
+    PRESET_COURSES.forEach(function(c){
+      if (!seen[c.bana]){ seen[c.bana] = true; list.push({ bana: c.bana, ort: c.ort }); }
+    });
+    return list;
+  })();
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(ch){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch];
+    });
+  }
+
+  function loadCourses(){
+    try { courses = JSON.parse(localStorage.getItem('scramble-hcp-courses') || '[]'); }
+    catch(e){ courses = []; }
+  }
+
+  function saveCourses(){
+    try { localStorage.setItem('scramble-hcp-courses', JSON.stringify(courses)); }
+    catch(e){}
+  }
+
+  function presetOptionLabel(c){
+    var kon = c.kon === 'D' ? 'dam' : 'herr';
+    var bits = [];
+    bits.push(c.cr != null ? 'CR ' + c.cr : 'CR ?');
+    bits.push(c.slope != null ? 'Slope ' + c.slope : 'Slope ?');
+    if (c.par != null) bits.push('Par ' + c.par);
+    return c.tee + ' (' + kon + ') — ' + bits.join(' / ');
+  }
+
+  function banaOptionsHtml(selectedValue){
+    var opts = '<option value="">— Välj bana —</option>';
+    if (courses.length){
+      opts += '<option value="own"' + (selectedValue === 'own' ? ' selected' : '') + '>Mina sparade banor</option>';
+    }
+    BANA_LIST.forEach(function(b, idx){
+      var val = 'b' + idx;
+      opts += '<option value="' + val + '"' + (val === selectedValue ? ' selected' : '') + '>' +
+        escapeHtml(b.bana + ' — ' + b.ort) + '</option>';
+    });
+    return opts;
+  }
+
+  function teeOptionsHtml(banaValue, selectedTeeValue){
+    if (!banaValue) return '<option value="">— Välj bana först —</option>';
+
+    if (banaValue === 'own'){
+      if (!courses.length) return '<option value="">(inga sparade banor)</option>';
+      var opts = '<option value="">— Välj —</option>';
+      courses.forEach(function(c){
+        opts += '<option value="' + c.id + '"' + (c.id === selectedTeeValue ? ' selected' : '') + '>' +
+          escapeHtml(c.name) + ' (CR ' + c.cr + ' / Slope ' + c.slope + ')</option>';
+      });
+      return opts;
+    }
+
+    var idx = parseInt(banaValue.slice(1), 10);
+    var banaName = BANA_LIST[idx] ? BANA_LIST[idx].bana : null;
+    var opts2 = '<option value="">— Välj tee —</option>';
+    PRESET_COURSES.forEach(function(c, i){
+      if (c.bana !== banaName) return;
+      var val = 'p' + i;
+      opts2 += '<option value="' + val + '"' + (val === selectedTeeValue ? ' selected' : '') + '>' +
+        escapeHtml(presetOptionLabel(c)) + '</option>';
+    });
+    return opts2;
+  }
+
+  function refreshCourseSelects(setBanaValue, setTeeValue, setTarget){
+    document.querySelectorAll('.course-bana-select').forEach(function(banaSel){
+      var target = banaSel.dataset.target;
+      var isSetTarget = (setTarget && target === setTarget);
+      var newBanaVal = isSetTarget ? setBanaValue : banaSel.value;
+      banaSel.innerHTML = banaOptionsHtml(newBanaVal);
+      banaSel.value = newBanaVal || '';
+
+      var teeSel = document.getElementById('course-tee-' + target);
+      if (teeSel){
+        var newTeeVal = isSetTarget ? setTeeValue : teeSel.value;
+        teeSel.innerHTML = teeOptionsHtml(banaSel.value, newTeeVal);
+        teeSel.value = newTeeVal || '';
+        teeSel.disabled = !banaSel.value;
+      }
+    });
+  }
+
+  function computeTeam(sortedCh){
+    var base = BASE_W[0] * sortedCh[0] + BASE_W[1] * sortedCh[1];
+    var deductions = [];
+    for (var i = 2; i < sortedCh.length; i++){
+      var k = DEDUCT_K[i - 2];
+      var amount = k * Math.max(0, sortedCh[i]);
+      deductions.push({ k: k, ch: sortedCh[i], amount: amount });
+    }
+    var totalDeduction = deductions.reduce(function(s, d){ return s + d.amount; }, 0);
+    var raw = base - totalDeduction;
+    return { base: base, deductions: deductions, raw: raw, team: Math.max(0, Math.round(raw)) };
+  }
+
+  function num(id){
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var v = parseFloat(el.value);
+    return isNaN(v) ? null : v;
+  }
+
+  function courseHandicap(t, p){
+    var idx = num('hcp-' + t + '-' + p);
+    if (idx === null) return null;
+    var advEl = document.getElementById('adv-' + t + '-' + p);
+    var advOn = advEl && advEl.hidden === false;
+    if (!advOn) return Math.round(idx);
+    var slope = num('slope-' + t + '-' + p);
+    var cr = num('cr-' + t + '-' + p);
+    var par = num('par-' + t + '-' + p);
+    if (slope === null) slope = 113;
+    if (cr === null || par === null) return Math.round(idx);
+    return Math.round(idx * (slope / 113) + (cr - par));
+  }
+
+  function nameOf(t, p, fallback){
+    var el = document.getElementById('name-' + t + '-' + p);
+    var v = el ? el.value.trim() : '';
+    return v || fallback;
+  }
+
+  function teamName(t, fallback){
+    var el = document.getElementById('teamname-' + t);
+    var v = el ? el.value.trim() : '';
+    return v || fallback;
+  }
+
+  function defaultTeamName(positionIndex){
+    if (positionIndex < 26) return 'Lag ' + String.fromCharCode(65 + positionIndex);
+    return 'Lag ' + (positionIndex + 1);
+  }
+
+  function playerCardHtml(t, p, i){
+    return (
+      '<div class="player" data-player="' + p + '"' + (i >= 2 ? ' hidden' : '') + '>' +
+        '<span class="badge">Spelare ' + (i + 1) + '</span>' +
+        '<label>Namn (valfritt)<input type="text" id="name-' + t + '-' + p + '" placeholder="Spelare ' + (i + 1) + '"></label>' +
+        '<label>Handicap index<input type="number" id="hcp-' + t + '-' + p + '" step="0.1" inputmode="decimal" placeholder="t.ex. 14.2"></label>' +
+        '<label class="advanced-toggle"><input type="checkbox" class="adv-toggle" data-target="adv-' + t + '-' + p + '"> Beräkna banahandicap</label>' +
+        '<div class="advanced-fields" id="adv-' + t + '-' + p + '" hidden>' +
+          '<div class="course-picker">' +
+            '<div class="course-columns">' +
+              '<select class="course-bana-select" id="course-bana-' + t + '-' + p + '" data-target="' + t + '-' + p + '">' +
+                banaOptionsHtml('') +
+              '</select>' +
+              '<select class="course-tee-select" id="course-tee-' + t + '-' + p + '" data-target="' + t + '-' + p + '" disabled>' +
+                teeOptionsHtml('', '') +
+              '</select>' +
+            '</div>' +
+            '<button type="button" class="course-btn save-course-btn" data-target="' + t + '-' + p + '" title="Spara nuvarande Slope/CR/Par som en bana">💾</button>' +
+            '<button type="button" class="course-btn delete-course-btn" data-target="' + t + '-' + p + '" title="Ta bort vald bana">🗑</button>' +
+          '</div>' +
+          '<div class="advanced-grid">' +
+            '<label>Slope<input type="number" id="slope-' + t + '-' + p + '" value="113" step="1"></label>' +
+            '<label>CR<input type="number" id="cr-' + t + '-' + p + '" step="0.1" placeholder="72.0"></label>' +
+            '<label>Par<input type="number" id="par-' + t + '-' + p + '" step="1" placeholder="72"></label>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function teamCardHtml(t, defaultName){
+    var playersHtml = PREFIXES.map(function(p, i){ return playerCardHtml(t, p, i); }).join('');
+    var countBtns = [2, 3, 4].map(function(n){
+      return '<button type="button" class="count-btn" data-team="' + t + '" data-count="' + n + '">' + n + ' sp.</button>';
+    }).join('');
+    return (
+      '<div class="card team-card" data-team="' + t + '">' +
+        '<div class="team-card-header">' +
+          '<input type="text" class="team-name-input" id="teamname-' + t + '" placeholder="' + defaultName + '" value="' + defaultName + '">' +
+          '<button type="button" class="remove-team-btn" data-remove-team="' + t + '" title="Ta bort lag" aria-label="Ta bort lag">&times;</button>' +
+        '</div>' +
+        '<div class="player-count-row">' +
+          '<span class="count-label">Antal spelare</span>' +
+          '<div class="count-toggle" role="group" aria-label="Antal spelare">' + countBtns + '</div>' +
+        '</div>' +
+        '<div class="players">' + playersHtml + '</div>' +
+        '<hr class="divider">' +
+        '<div class="result">' +
+          '<span class="label">Lagets scramblehandicap</span>' +
+          '<span class="value" id="team-hcp-' + t + '">–</span>' +
+          '<span class="sub" id="team-sub-' + t + '">Fyll i handicap index för alla spelare</span>' +
+        '</div>' +
+        '<div class="breakdown" id="breakdown-' + t + '" hidden></div>' +
+      '</div>'
+    );
+  }
+
+  function setCount(t, n){
+    counts[t] = n;
+    PREFIXES.forEach(function(p, i){
+      var el = document.querySelector('.team-card[data-team="' + t + '"] .player[data-player="' + p + '"]');
+      if (el) el.hidden = i >= n;
+    });
+    document.querySelectorAll('.count-btn[data-team="' + t + '"]').forEach(function(btn){
+      btn.classList.toggle('active', parseInt(btn.dataset.count, 10) === n);
+    });
+    renderAll();
+  }
+
+  function updateRemoveButtonsVisibility(){
+    var showRemove = teamOrder.length > 1;
+    teamOrder.forEach(function(t){
+      var btn = document.querySelector('.remove-team-btn[data-remove-team="' + t + '"]');
+      if (btn) btn.hidden = !showRemove;
+    });
+  }
+
+  function updateAddTeamButton(){
+    var btn = document.getElementById('add-team-btn');
+    btn.disabled = teamOrder.length >= MAX_TEAMS;
+  }
+
+  function addTeam(){
+    if (teamOrder.length >= MAX_TEAMS) return;
+    var t = nextTeamId++;
+    var positionIndex = teamOrder.length;
+    teamOrder.push(t);
+    counts[t] = 2;
+
+    var wrap = document.createElement('div');
+    wrap.id = 'team-card-' + t;
+    wrap.innerHTML = teamCardHtml(t, defaultTeamName(positionIndex));
+    document.getElementById('teams-container').appendChild(wrap);
+
+    PREFIXES.forEach(function(p, i){
+      var el = document.querySelector('.team-card[data-team="' + t + '"] .player[data-player="' + p + '"]');
+      if (el) el.hidden = i >= counts[t];
+    });
+    document.querySelectorAll('.count-btn[data-team="' + t + '"]').forEach(function(btn){
+      btn.classList.toggle('active', parseInt(btn.dataset.count, 10) === counts[t]);
+    });
+
+    rebuildLeaderboardRows();
+    updateRemoveButtonsVisibility();
+    updateAddTeamButton();
+    renderAll();
+  }
+
+  function removeTeam(t){
+    if (teamOrder.length <= 1) return;
+    teamOrder = teamOrder.filter(function(x){ return x !== t; });
+    delete counts[t];
+
+    var card = document.getElementById('team-card-' + t);
+    if (card) card.remove();
+
+    rebuildLeaderboardRows();
+    updateRemoveButtonsVisibility();
+    updateAddTeamButton();
+    renderAll();
+  }
+
+  function renderTeam(t){
+    var teamEl = document.getElementById('team-hcp-' + t);
+    if (!teamEl) return null;
+    var subEl = document.getElementById('team-sub-' + t);
+    var bdEl = document.getElementById('breakdown-' + t);
+
+    var n = counts[t];
+    var active = PREFIXES.slice(0, n);
+    var entries = active.map(function(p, i){
+      return { name: nameOf(t, p, 'Spelare ' + (i + 1)), ch: courseHandicap(t, p) };
+    });
+
+    if (entries.some(function(e){ return e.ch === null; })){
+      teamEl.textContent = '–';
+      subEl.textContent = 'Fyll i handicap index för alla spelare';
+      bdEl.hidden = true;
+      bdEl.innerHTML = '';
+      return null;
+    }
+
+    var sorted = entries.slice().sort(function(x, y){ return x.ch - y.ch; });
+    var sortedCh = sorted.map(function(e){ return e.ch; });
+    var result = computeTeam(sortedCh);
+
+    teamEl.textContent = result.team;
+    subEl.textContent = 'Slag laget för avdrag från bruttoresultatet';
+
+    var rows = '';
+    rows += '<div class="row"><span>' + escapeHtml(sorted[0].name) + ' — banahcp ' + sorted[0].ch + ' × ' +
+      (BASE_W[0] * 100).toFixed(1) + ' %</span><span>+' + (sorted[0].ch * BASE_W[0]).toFixed(2) + '</span></div>';
+    rows += '<div class="row"><span>' + escapeHtml(sorted[1].name) + ' — banahcp ' + sorted[1].ch + ' × ' +
+      (BASE_W[1] * 100).toFixed(1) + ' %</span><span>+' + (sorted[1].ch * BASE_W[1]).toFixed(2) + '</span></div>';
+    result.deductions.forEach(function(d, i){
+      var e = sorted[i + 2];
+      rows += '<div class="row"><span>' + escapeHtml(e.name) + ' — banahcp ' + e.ch + ' × ' + (d.k * 100).toFixed(0) +
+        ' % avdrag</span><span>−' + d.amount.toFixed(2) + '</span></div>';
+    });
+    rows += '<div class="row total"><span>Lagets handicap</span><span>' + result.team + '</span></div>';
+    bdEl.innerHTML = rows;
+    bdEl.hidden = false;
+
+    return result.team;
+  }
+
+  function rowHtml(t){
+    return (
+      '<tr id="lb-row-' + t + '">' +
+        '<td class="lb-rank" id="lb-rank-' + t + '">–</td>' +
+        '<td id="lb-name-' + t + '">–</td>' +
+        '<td id="lb-hcp-' + t + '">–</td>' +
+        '<td><input type="number" class="gross-input" id="gross-' + t + '" step="1" inputmode="numeric" placeholder="t.ex. 78"></td>' +
+        '<td class="lb-net" id="lb-net-' + t + '">–</td>' +
+      '</tr>'
+    );
+  }
+
+  function rebuildLeaderboardRows(){
+    var tbody = document.getElementById('leaderboard-body');
+    var oldGross = {};
+    teamOrder.forEach(function(t){
+      var el = document.getElementById('gross-' + t);
+      if (el) oldGross[t] = el.value;
+    });
+    tbody.innerHTML = teamOrder.map(rowHtml).join('');
+    teamOrder.forEach(function(t){
+      if (oldGross[t] !== undefined){
+        var el = document.getElementById('gross-' + t);
+        if (el) el.value = oldGross[t];
+      }
+    });
+  }
+
+  function updateLeaderboard(hcpMap){
+    var hintEl = document.getElementById('leaderboard-hint');
+    var nets = {};
+    var anyMissingHcp = false;
+
+    teamOrder.forEach(function(t){
+      var name = teamName(t, defaultTeamName(teamOrder.indexOf(t)));
+      var hcp = hcpMap[t];
+      var gross = num('gross-' + t);
+
+      var nameEl = document.getElementById('lb-name-' + t);
+      var hcpEl = document.getElementById('lb-hcp-' + t);
+      var netEl = document.getElementById('lb-net-' + t);
+      var rankEl = document.getElementById('lb-rank-' + t);
+      var rowEl = document.getElementById('lb-row-' + t);
+      if (!nameEl) return;
+
+      nameEl.textContent = name;
+      hcpEl.textContent = (hcp === null || hcp === undefined) ? '–' : hcp;
+      if (hcp === null || hcp === undefined) anyMissingHcp = true;
+
+      if ((hcp === null || hcp === undefined) || gross === null){
+        netEl.textContent = '–';
+        rankEl.textContent = '–';
+        if (rowEl) rowEl.classList.remove('winner-row');
+        return;
+      }
+
+      var net = gross - hcp;
+      nets[t] = net;
+      netEl.textContent = net;
+    });
+
+    var scored = teamOrder.filter(function(t){ return nets[t] !== undefined; });
+
+    if (scored.length === 0){
+      hintEl.hidden = false;
+      hintEl.textContent = anyMissingHcp
+        ? 'Fyll i handicap index för alla spelare och bruttoresultat för varje lag för att se placeringen.'
+        : 'Fyll i bruttoresultat för varje lag för att se placeringen.';
+    } else if (scored.length < teamOrder.length){
+      hintEl.hidden = false;
+      hintEl.textContent = 'Fyll i bruttoresultat för resterande lag för att se hela placeringen.';
+    } else {
+      hintEl.hidden = true;
+    }
+
+    scored.forEach(function(t){
+      var rank = 1 + scored.filter(function(other){ return nets[other] < nets[t]; }).length;
+      var rankEl = document.getElementById('lb-rank-' + t);
+      var rowEl = document.getElementById('lb-row-' + t);
+      rankEl.textContent = rank;
+      if (rowEl) rowEl.classList.toggle('winner-row', rank === 1 && scored.length === teamOrder.length);
+    });
+  }
+
+  function renderAll(){
+    var hcpMap = {};
+    teamOrder.forEach(function(t){ hcpMap[t] = renderTeam(t); });
+    updateLeaderboard(hcpMap);
+  }
+
+  document.addEventListener('click', function(e){
+    var countBtn = e.target.closest('.count-btn');
+    if (countBtn){ setCount(parseInt(countBtn.dataset.team, 10), parseInt(countBtn.dataset.count, 10)); return; }
+
+    var removeBtn = e.target.closest('.remove-team-btn');
+    if (removeBtn){ removeTeam(parseInt(removeBtn.dataset.removeTeam, 10)); return; }
+
+    var saveCourseBtn = e.target.closest('.save-course-btn');
+    if (saveCourseBtn){
+      var target = saveCourseBtn.dataset.target;
+      var slope = num('slope-' + target);
+      var cr = num('cr-' + target);
+      var par = num('par-' + target);
+      if (slope === null || cr === null || par === null){
+        alert('Fyll i Slope, CR och Par innan du sparar banan.');
+        return;
+      }
+      var name = (window.prompt('Namnge banan (t.ex. "Bro Hof, gul tee"):', '') || '').trim();
+      if (!name) return;
+      var courseObj = { id: String(Date.now()), name: name, slope: slope, cr: cr, par: par };
+      courses.push(courseObj);
+      saveCourses();
+      refreshCourseSelects('own', courseObj.id, target);
+      return;
+    }
+
+    var deleteCourseBtn = e.target.closest('.delete-course-btn');
+    if (deleteCourseBtn){
+      var t2 = deleteCourseBtn.dataset.target;
+      var teeSel = document.getElementById('course-tee-' + t2);
+      var id = teeSel ? teeSel.value : '';
+      if (!id) return;
+      if (id.charAt(0) === 'p'){
+        alert('Inbyggda banor kan inte tas bort. Välj "Egen bana" om du vill mata in andra värden.');
+        return;
+      }
+      var course = courses.find(function(c){ return c.id === id; });
+      if (!course) return;
+      if (!window.confirm('Ta bort banan "' + course.name + '" från dina sparade banor?')) return;
+      courses = courses.filter(function(c){ return c.id !== id; });
+      saveCourses();
+      refreshCourseSelects();
+      return;
+    }
+  });
+
+  document.getElementById('add-team-btn').addEventListener('click', addTeam);
+
+  document.addEventListener('change', function(e){
+    if (e.target.classList && e.target.classList.contains('adv-toggle')){
+      document.getElementById(e.target.dataset.target).hidden = !e.target.checked;
+      renderAll();
+    }
+    if (e.target.classList && e.target.classList.contains('course-bana-select')){
+      var banaTarget = e.target.dataset.target;
+      var teeSel = document.getElementById('course-tee-' + banaTarget);
+      teeSel.innerHTML = teeOptionsHtml(e.target.value, '');
+      teeSel.value = '';
+      teeSel.disabled = !e.target.value;
+    }
+    if (e.target.classList && e.target.classList.contains('course-tee-select')){
+      var target = e.target.dataset.target;
+      var id = e.target.value;
+      if (id){
+        var course = id.charAt(0) === 'p'
+          ? PRESET_COURSES[parseInt(id.slice(1), 10)]
+          : courses.find(function(c){ return c.id === id; });
+        if (course){
+          if (course.slope != null) document.getElementById('slope-' + target).value = course.slope;
+          if (course.cr != null) document.getElementById('cr-' + target).value = course.cr;
+          if (course.par != null) document.getElementById('par-' + target).value = course.par;
+        }
+      }
+      renderAll();
+    }
+  });
+
+  document.addEventListener('input', function(e){
+    if (e.target.tagName === 'INPUT') renderAll();
+  });
+
+  loadCourses();
+
+  // Starta med två lag så det direkt går att jämföra ett resultat.
+  addTeam();
+  addTeam();
+
+  try {
+    var saved = JSON.parse(localStorage.getItem('scramble-hcp-inputs') || '{}');
+    Object.keys(saved).forEach(function(id){
+      if (id.indexOf('__') === 0) return;
+      var el = document.getElementById(id);
+      if (el && el.type !== 'checkbox') el.value = saved[id];
+    });
+  } catch(e){}
+
+  renderAll();
+
+  window.addEventListener('beforeunload', function(){
+    try {
+      var data = {};
+      teamOrder.forEach(function(t){
+        var nameEl = document.getElementById('teamname-' + t);
+        if (nameEl) data['teamname-' + t] = nameEl.value;
+        PREFIXES.forEach(function(p){
+          ['name-', 'hcp-', 'slope-', 'cr-', 'par-'].forEach(function(pre){
+            var el = document.getElementById(pre + t + '-' + p);
+            if (el) data[pre + t + '-' + p] = el.value;
+          });
+        });
+        var g = document.getElementById('gross-' + t);
+        if (g) data['gross-' + t] = g.value;
+      });
+      localStorage.setItem('scramble-hcp-inputs', JSON.stringify(data));
+    } catch(e){}
+  });
+})();
+</script>
