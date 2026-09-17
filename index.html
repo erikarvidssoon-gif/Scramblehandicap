@@ -63,7 +63,7 @@
   }
   h1,h2,h3{ font-family:"Fraunces", Georgia, serif; }
 
-  .page{ width:100%; max-width:680px; display:flex; flex-direction:column; gap:20px; }
+  .page{ width:100%; max-width:680px; min-width:0; display:flex; flex-direction:column; gap:20px; }
 
   .masthead{ display:flex; align-items:center; gap:14px; }
   .flag{ flex:0 0 auto; }
@@ -138,6 +138,7 @@
     border-radius:14px;
     box-shadow:var(--shadow);
     padding:20px;
+    min-width:0;
   }
 
   .team-card-header{
@@ -179,7 +180,7 @@
   .players{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   @media (max-width:520px){ .players{ grid-template-columns:1fr; } }
 
-  .player{ display:flex; flex-direction:column; gap:10px; }
+  .player{ display:flex; flex-direction:column; gap:10px; min-width:0; }
   .player[hidden]{ display:none; }
   .player .badge{
     align-self:flex-start;
@@ -204,6 +205,7 @@
     background:var(--bg);
     color:var(--ink-900);
     width:100%;
+    min-width:0;
   }
   input:focus-visible{ outline:2px solid var(--green-500); outline-offset:1px; }
 
@@ -215,17 +217,17 @@
   }
   .advanced-toggle input{ width:auto; accent-color:var(--green-600); }
 
-  .advanced-fields{ display:flex; flex-direction:column; gap:8px; }
+  .advanced-fields{ display:flex; flex-direction:column; gap:8px; min-width:0; }
   .advanced-grid{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:8px; min-width:0;
   }
-  .advanced-grid label{ font-size:0.72rem; }
+  .advanced-grid label{ font-size:0.72rem; min-width:0; }
   .advanced-grid input{ padding:7px 8px; font-size:0.9rem; }
 
-  .course-picker{ display:flex; gap:6px; flex-wrap:wrap; }
+  .course-picker{ display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
   .course-columns{ display:flex; gap:6px; flex:1; min-width:0; flex-wrap:wrap; }
   .course-bana-select, .course-tee-select{
-    flex:1 1 120px; min-width:110px;
+    flex:1 1 120px; min-width:0;
     font:inherit;
     font-size:0.78rem;
     padding:7px 8px;
@@ -320,6 +322,38 @@
   input.gross-input{ width:84px; padding:7px 8px; }
   tr.winner-row td{ background:var(--cream-100); }
   tr.winner-row td.lb-rank{ color:var(--gold-600); }
+
+  @media (max-width:640px){
+    .table-wrap{ overflow-x:visible; }
+    table.leaderboard{ min-width:0; }
+    table.leaderboard thead{ display:none; }
+    table.leaderboard, table.leaderboard tbody, table.leaderboard tr, table.leaderboard td{ display:block; width:100%; }
+    table.leaderboard tr{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:4px 12px;
+      margin-bottom:10px;
+      background:var(--bg);
+    }
+    table.leaderboard tr:last-child{ margin-bottom:0; }
+    table.leaderboard td{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:8px 0;
+      border-bottom:1px dashed var(--line);
+    }
+    table.leaderboard td:last-child{ border-bottom:none; }
+    table.leaderboard td::before{
+      font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-600);
+    }
+    td.lb-rank::before{ content:'Placering'; }
+    td:nth-child(2)::before{ content:'Lag'; }
+    td:nth-child(3)::before{ content:'Handicap'; }
+    td:nth-child(4)::before{ content:'Brutto'; }
+    td.lb-net::before{ content:'Netto'; }
+    .gross-input{ width:110px; text-align:right; }
+    tr.winner-row{ border-color:var(--gold-500); }
+    tr.winner-row td{ background:transparent; }
+  }
 
   .note{
     font-size:0.8rem;
