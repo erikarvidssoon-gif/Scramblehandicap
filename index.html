@@ -95,6 +95,7 @@
   .add-team-btn:hover{ background:var(--cream-100); }
   .add-team-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
   .add-team-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .add-team-btn.active{ border-style:solid; background:var(--green-600); color:var(--on-accent); }
 
   .player-count-row{
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
@@ -345,14 +346,123 @@
     table.leaderboard td::before{
       font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-600);
     }
-    td.lb-rank::before{ content:'Placering'; }
-    td:nth-child(2)::before{ content:'Lag'; }
-    td:nth-child(3)::before{ content:'Handicap'; }
-    td:nth-child(4)::before{ content:'Brutto'; }
-    td.lb-net::before{ content:'Netto'; }
+    table.leaderboard td.lb-rank::before{ content:'Placering'; }
+    table.leaderboard td:nth-child(2)::before{ content:'Lag'; }
+    table.leaderboard td:nth-child(3)::before{ content:'Handicap'; }
+    table.leaderboard td:nth-child(4)::before{ content:'Brutto'; }
+    table.leaderboard td.lb-net::before{ content:'Netto'; }
     .gross-input{ width:110px; text-align:right; }
     tr.winner-row{ border-color:var(--gold-500); }
     tr.winner-row td{ background:transparent; }
+  }
+
+  .guide-toggle-row{ display:flex; justify-content:flex-start; }
+  .guide-section{ display:flex; flex-direction:column; gap:12px; }
+  .guide-picker-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .guide-picker-row label{ flex:1 1 160px; min-width:0; }
+  #guide-handicap-input{ max-width:160px; }
+  .guide-summary{
+    font-size:1rem;
+    font-weight:600;
+    color:var(--ink-900);
+    background:var(--cream-100);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    margin:4px 0 0;
+  }
+  .guide-content{
+    display:flex; flex-direction:column; gap:44px;
+    margin-top:8px;
+    min-width:0;
+  }
+  .guide-note{ font-size:0.95rem; color:var(--ink-600); margin:0; line-height:1.6; }
+  .guide-note strong{ color:var(--ink-900); }
+  .guide-hole{
+    display:flex; flex-direction:column; gap:14px;
+    padding-bottom:44px;
+    border-bottom:1px solid var(--line);
+    min-width:0;
+  }
+  .guide-hole:last-child{ padding-bottom:0; border-bottom:none; }
+  .guide-hole-header{
+    display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+    flex-wrap:wrap;
+  }
+  .guide-hole-num{ font-family:"Fraunces", Georgia, serif; font-weight:600; font-size:1.4rem; }
+  .guide-hole-stats{ font-size:1.05rem; color:var(--ink-600); font-variant-numeric:tabular-nums; }
+  .guide-hole-img{
+    width:100%; max-width:100%;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    display:block;
+  }
+  .guide-hole-score{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .guide-hole-score label{
+    display:flex; align-items:center; gap:8px;
+    font-size:0.95rem; color:var(--ink-600);
+  }
+  .guide-score-input{ width:80px; font-size:1.05rem; }
+  .guide-hole-diff{
+    font-size:1.05rem; font-weight:700; color:var(--gold-600);
+    font-variant-numeric:tabular-nums;
+    min-width:2.5em;
+  }
+
+  .guide-scorecard-wrap{ overflow-x:auto; min-width:0; }
+  .guide-scorecard-second{ margin-top:12px; }
+  table.guide-scorecard{
+    width:100%;
+    border-collapse:collapse;
+    font-variant-numeric:tabular-nums;
+    min-width:400px;
+  }
+  table.guide-scorecard th, table.guide-scorecard td{
+    padding:9px 8px;
+    text-align:center;
+    font-size:1.05rem;
+    border-bottom:1px solid var(--line);
+  }
+  table.guide-scorecard th{
+    font-weight:700; color:var(--ink-600);
+    text-transform:uppercase; font-size:0.78rem; letter-spacing:0.04em;
+    border-bottom:2px solid var(--line);
+  }
+  table.guide-scorecard td:first-child, table.guide-scorecard th:first-child{
+    text-align:left; font-weight:700; color:var(--ink-900);
+    position:sticky; left:0; background:var(--surface);
+  }
+  table.guide-scorecard tr:last-child td{ border-bottom:none; font-weight:700; }
+  table.guide-scorecard .sc-diff-row td{ color:var(--gold-600); font-weight:700; }
+  table.guide-scorecard .sc-index-row td{ color:var(--ink-600); font-size:0.85rem; }
+  table.guide-scorecard .sc-strokes-row td{ color:var(--green-600); letter-spacing:1px; }
+  table.guide-scorecard .sc-net-row td{ font-weight:700; }
+
+  .score-mark{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:1.7em; height:1.7em;
+    box-sizing:border-box;
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .score-mark.mark-circle{
+    border-radius:50%;
+    border:1.5px solid var(--gold-600);
+    color:var(--gold-600);
+  }
+  .score-mark.mark-circle.mark-double{
+    box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--gold-600);
+  }
+  .score-mark.mark-square{
+    border-radius:2px;
+    border:1.5px solid var(--red-600);
+    color:var(--red-600);
+  }
+  .score-mark.mark-square.mark-double{
+    box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--red-600);
   }
 
   .note{
@@ -378,6 +488,24 @@
       <h1>Scramblehandicap</h1>
       <p>Räkna ut och tävla med flera lag i scramble</p>
     </div>
+  </div>
+
+  <div class="guide-toggle-row">
+    <button type="button" id="toggle-guide-btn" class="add-team-btn">🏌️ Visa banguide</button>
+  </div>
+
+  <div class="card guide-section" id="guide-section" hidden>
+    <h2 class="leaderboard-title">Banguide</h2>
+    <p class="leaderboard-hint">Hål-för-hål med par, index, längd och bild — oberoende av lagen nedan.</p>
+    <div class="guide-picker-row">
+      <label>Välj bana
+        <select id="guide-bana-select" class="course-bana-select"></select>
+      </label>
+      <label>Ditt banahandicap (valfritt)
+        <input type="number" id="guide-handicap-input" step="1" min="0" max="54" inputmode="numeric" placeholder="t.ex. 18">
+      </label>
+    </div>
+    <div class="guide-content" id="guide-content"></div>
   </div>
 
   <div class="teams-container" id="teams-container"></div>
@@ -454,6 +582,99 @@
     });
     return list;
   })();
+
+  // Hål-för-hål-data (banguide): par, index (hcp-slaggivning) och längd per hål.
+  // Längden är uppmätt från en referens-tee (refTee) — samma för alla tees på banan i övrigt.
+  // Bilder ligger i images/<imageSlug>_halN.png. Källa: klubbens scorekort (sammanställt av användaren, sep 2026).
+  var HOLE_DATA = {
+    "Upsala GK - Stora (18 hål)": {
+      refTee: "59",
+      imageSlug: "upsala-stora",
+      holes: [
+        {par:4, index:7,  length:356},
+        {par:3, index:17, length:136},
+        {par:4, index:5,  length:324},
+        {par:4, index:3,  length:366},
+        {par:5, index:13, length:445},
+        {par:3, index:9,  length:183},
+        {par:4, index:1,  length:375},
+        {par:5, index:15, length:455},
+        {par:4, index:11, length:345},
+        {par:3, index:14, length:162},
+        {par:4, index:4,  length:363},
+        {par:5, index:10, length:505},
+        {par:4, index:12, length:333},
+        {par:3, index:16, length:143},
+        {par:4, index:2,  length:328},
+        {par:5, index:6,  length:447},
+        {par:4, index:18, length:258},
+        {par:4, index:8,  length:364}
+      ]
+    },
+    "Upsala GK - Mellanbanan (9 hål)": {
+      refTee: "Gul",
+      imageSlug: "upsala-mellan",
+      holes: [
+        {par:4, index:13, length:273},
+        {par:4, index:9,  length:329},
+        {par:5, index:3,  length:435},
+        {par:4, index:15, length:300},
+        {par:3, index:11, length:102},
+        {par:5, index:1,  length:442},
+        {par:3, index:17, length:137},
+        {par:4, index:5,  length:338},
+        {par:3, index:7,  length:143}
+      ]
+    },
+    "GolfUppsala Söderby (18 hål)": {
+      refTee: "60",
+      imageSlug: "soderby",
+      holes: [
+        {par:5, index:9,  length:466},
+        {par:4, index:17, length:305},
+        {par:4, index:1,  length:357},
+        {par:5, index:5,  length:396},
+        {par:3, index:15, length:131},
+        {par:4, index:7,  length:317},
+        {par:4, index:13, length:342},
+        {par:4, index:11, length:356},
+        {par:4, index:3,  length:393},
+        {par:5, index:12, length:470},
+        {par:4, index:14, length:284},
+        {par:3, index:4,  length:167},
+        {par:4, index:18, length:310},
+        {par:3, index:10, length:144},
+        {par:4, index:2,  length:382},
+        {par:4, index:8,  length:382},
+        {par:4, index:6,  length:344},
+        {par:5, index:16, length:464}
+      ]
+    },
+    "GolfUppsala Edenhof (18 hål)": {
+      refTee: "59",
+      imageSlug: "edenhof",
+      holes: [
+        {par:5, index:11, length:446},
+        {par:3, index:15, length:162},
+        {par:4, index:7,  length:350},
+        {par:4, index:1,  length:324},
+        {par:3, index:17, length:141},
+        {par:4, index:5,  length:349},
+        {par:5, index:13, length:477},
+        {par:4, index:3,  length:354},
+        {par:4, index:9,  length:355},
+        {par:4, index:12, length:357},
+        {par:3, index:18, length:151},
+        {par:5, index:6,  length:449},
+        {par:4, index:14, length:342},
+        {par:3, index:8,  length:164},
+        {par:4, index:2,  length:362},
+        {par:4, index:16, length:321},
+        {par:5, index:4,  length:478},
+        {par:4, index:10, length:316}
+      ]
+    }
+  };
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, function(ch){
@@ -534,6 +755,222 @@
         teeSel.disabled = !banaSel.value;
       }
     });
+  }
+
+  function guideBanaOptionsHtml(){
+    var opts = '<option value="">— Välj bana —</option>';
+    Object.keys(HOLE_DATA).forEach(function(banaName){
+      opts += '<option value="' + escapeHtml(banaName) + '">' + escapeHtml(banaName) + '</option>';
+    });
+    return opts;
+  }
+
+  var currentGuideBana = null;
+
+  function scorecardBlockHtml(data, startIdx, endIdx, label, idSuffix, includeTotal){
+    var headerHtml = '<th>Hål</th>';
+    var indexRow = '<td>Index</td>';
+    var parRow = '<td>Par</td>';
+    var scoreRow = '<td>Score</td>';
+    var diffRow = '<td>+/−</td>';
+    var strokesRow = '<td>Hcp-slag</td>';
+    var netRow = '<td>Netto</td>';
+
+    for (var i = startIdx; i < endIdx; i++){
+      var holeNum = i + 1;
+      headerHtml += '<th>' + holeNum + '</th>';
+      indexRow += '<td>' + data.holes[i].index + '</td>';
+      parRow += '<td>' + data.holes[i].par + '</td>';
+      scoreRow += '<td id="sc-score-' + holeNum + '">–</td>';
+      diffRow += '<td id="sc-diff-' + holeNum + '">–</td>';
+      strokesRow += '<td id="sc-strokes-' + holeNum + '">–</td>';
+      netRow += '<td id="sc-net-' + holeNum + '">–</td>';
+    }
+
+    var subPar = data.holes.slice(startIdx, endIdx).reduce(function(s, h){ return s + h.par; }, 0);
+    headerHtml += '<th>' + label + '</th>';
+    indexRow += '<td></td>';
+    parRow += '<td>' + subPar + '</td>';
+    scoreRow += '<td id="sc-score-' + idSuffix + '">–</td>';
+    diffRow += '<td id="sc-diff-' + idSuffix + '">–</td>';
+    strokesRow += '<td id="sc-strokes-' + idSuffix + '">–</td>';
+    netRow += '<td id="sc-net-' + idSuffix + '">–</td>';
+
+    if (includeTotal){
+      headerHtml += '<th>Tot</th>';
+      indexRow += '<td></td>';
+      parRow += '<td>' + data.holes.reduce(function(s, h){ return s + h.par; }, 0) + '</td>';
+      scoreRow += '<td id="sc-score-tot">–</td>';
+      diffRow += '<td id="sc-diff-tot">–</td>';
+      strokesRow += '<td id="sc-strokes-tot">–</td>';
+      netRow += '<td id="sc-net-tot">–</td>';
+    }
+
+    return '<table class="guide-scorecard">' +
+      '<thead><tr>' + headerHtml + '</tr></thead>' +
+      '<tbody>' +
+        '<tr class="sc-index-row">' + indexRow + '</tr>' +
+        '<tr>' + parRow + '</tr>' +
+        '<tr>' + scoreRow + '</tr>' +
+        '<tr class="sc-diff-row">' + diffRow + '</tr>' +
+        '<tr class="sc-strokes-row">' + strokesRow + '</tr>' +
+        '<tr class="sc-net-row">' + netRow + '</tr>' +
+      '</tbody>' +
+      '</table>';
+  }
+
+  function scorecardHtml(data){
+    var n = data.holes.length;
+
+    if (n > 9){
+      return '<div class="guide-scorecard-wrap">' + scorecardBlockHtml(data, 0, 9, 'Ut', 'out', false) + '</div>' +
+        '<div class="guide-scorecard-wrap guide-scorecard-second">' + scorecardBlockHtml(data, 9, n, 'In', 'in', true) + '</div>';
+    }
+    return '<div class="guide-scorecard-wrap">' + scorecardBlockHtml(data, 0, n, 'Tot', 'tot', false) + '</div>';
+  }
+
+  function renderGuideContent(banaName){
+    var contentEl = document.getElementById('guide-content');
+    var data = HOLE_DATA[banaName];
+    currentGuideBana = data ? banaName : null;
+    if (!data){ contentEl.innerHTML = ''; return; }
+
+    var totalPar = data.holes.reduce(function(s, h){ return s + h.par; }, 0);
+    var html = '<p class="guide-note">Längd uppmätt från tee <strong>' + escapeHtml(data.refTee) +
+      '</strong> — samma par och index gäller normalt oavsett vald tee. Totalt par: ' + totalPar + '.</p>' +
+      '<p class="guide-summary" id="guide-summary">Fyll i score per hål för att se sammanlagt resultat.</p>' +
+      scorecardHtml(data);
+
+    data.holes.forEach(function(h, i){
+      var holeNum = i + 1;
+      var img = 'images/' + data.imageSlug + '_hal' + holeNum + '.png';
+      html +=
+        '<div class="guide-hole">' +
+          '<div class="guide-hole-header">' +
+            '<span class="guide-hole-num">Hål ' + holeNum + '</span>' +
+            '<span class="guide-hole-stats">Par ' + h.par + ' · Index ' + h.index + ' · ' + h.length + ' m</span>' +
+          '</div>' +
+          '<img src="' + img + '" alt="Banguide hål ' + holeNum + '" loading="lazy" class="guide-hole-img">' +
+          '<div class="guide-hole-score">' +
+            '<label>Ditt score' +
+              '<input type="number" class="guide-score-input" id="guide-score-' + holeNum + '" min="1" step="1" inputmode="numeric" placeholder="' + h.par + '">' +
+            '</label>' +
+            '<span class="guide-hole-diff" id="guide-diff-' + holeNum + '"></span>' +
+          '</div>' +
+        '</div>';
+    });
+
+    contentEl.innerHTML = html;
+  }
+
+  function diffText(diff){
+    return diff === 0 ? 'Par' : (diff > 0 ? '+' + diff : String(diff));
+  }
+
+  function setCell(id, text){
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function setCellHtml(id, html){
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // Traditionell scorekortsnotation: cirkel = under par (dubbel cirkel = 2 under eller bättre),
+  // fyrkant = över par (dubbel fyrkant = 2 över eller sämre).
+  function scoreMarkHtml(score, par){
+    var diff = score - par;
+    if (diff <= -2) return '<span class="score-mark mark-circle mark-double">' + score + '</span>';
+    if (diff === -1) return '<span class="score-mark mark-circle">' + score + '</span>';
+    if (diff === 1) return '<span class="score-mark mark-square">' + score + '</span>';
+    if (diff >= 2) return '<span class="score-mark mark-square mark-double">' + score + '</span>';
+    return String(score);
+  }
+
+  // Standardfördelning av handicapslag: ett extra slag per 18 i handicapet, plus ett
+  // ytterligare slag på de hål vars index är lägst (dvs. svårast) upp till resten.
+  function strokesForHole(handicap, index){
+    if (handicap == null || isNaN(handicap)) return null;
+    var extraRounds = Math.floor(handicap / 18);
+    var remainder = handicap - extraRounds * 18;
+    return extraRounds + (index <= remainder ? 1 : 0);
+  }
+
+  function strokeDots(n){
+    if (n === 0) return '–';
+    return new Array(n + 1).join('•');
+  }
+
+  function updateGuideSummary(){
+    var data = HOLE_DATA[currentGuideBana];
+    var summaryEl = document.getElementById('guide-summary');
+    if (!data || !summaryEl) return;
+
+    var hcpInput = document.getElementById('guide-handicap-input');
+    var handicap = hcpInput ? parseInt(hcpInput.value, 10) : NaN;
+    if (isNaN(handicap)) handicap = null;
+
+    var n = data.holes.length;
+    var totalScore = 0, totalParSoFar = 0, holesEntered = 0, totalStrokes = 0;
+    var outScore = 0, outPar = 0, outEntered = 0, outStrokes = 0;
+    var inScore = 0, inPar = 0, inEntered = 0, inStrokes = 0;
+
+    data.holes.forEach(function(h, i){
+      var holeNum = i + 1;
+      var input = document.getElementById('guide-score-' + holeNum);
+      var diffEl = document.getElementById('guide-diff-' + holeNum);
+      var val = input ? parseInt(input.value, 10) : NaN;
+      var has = !isNaN(val) && val > 0;
+      var strokes = strokesForHole(handicap, h.index);
+
+      setCellHtml('sc-score-' + holeNum, has ? scoreMarkHtml(val, h.par) : '–');
+      setCell('sc-diff-' + holeNum, has ? diffText(val - h.par) : '–');
+      setCell('sc-strokes-' + holeNum, strokes == null ? '–' : strokeDots(strokes));
+      setCell('sc-net-' + holeNum, (has && strokes != null) ? (val - strokes) : '–');
+      if (diffEl) diffEl.textContent = has ? diffText(val - h.par) : '';
+
+      if (has){
+        totalScore += val;
+        totalParSoFar += h.par;
+        holesEntered++;
+        if (holeNum <= 9){ outScore += val; outPar += h.par; outEntered++; }
+        else { inScore += val; inPar += h.par; inEntered++; }
+        if (strokes != null){
+          totalStrokes += strokes;
+          if (holeNum <= 9) outStrokes += strokes; else inStrokes += strokes;
+        }
+      }
+    });
+
+    if (n > 9){
+      setCell('sc-score-out', outEntered ? outScore : '–');
+      setCell('sc-diff-out', outEntered ? diffText(outScore - outPar) : '–');
+      setCell('sc-strokes-out', (outEntered && handicap != null) ? outStrokes : '–');
+      setCell('sc-net-out', (outEntered && handicap != null) ? (outScore - outStrokes) : '–');
+      setCell('sc-score-in', inEntered ? inScore : '–');
+      setCell('sc-diff-in', inEntered ? diffText(inScore - inPar) : '–');
+      setCell('sc-strokes-in', (inEntered && handicap != null) ? inStrokes : '–');
+      setCell('sc-net-in', (inEntered && handicap != null) ? (inScore - inStrokes) : '–');
+    }
+    setCell('sc-score-tot', holesEntered ? totalScore : '–');
+    setCell('sc-diff-tot', holesEntered ? diffText(totalScore - totalParSoFar) : '–');
+    setCell('sc-strokes-tot', (holesEntered && handicap != null) ? totalStrokes : '–');
+    setCell('sc-net-tot', (holesEntered && handicap != null) ? (totalScore - totalStrokes) : '–');
+
+    if (holesEntered === 0){
+      summaryEl.textContent = 'Fyll i score per hål för att se sammanlagt resultat.';
+      return;
+    }
+    var relToPar = totalScore - totalParSoFar;
+    var relText = relToPar === 0 ? 'jämnt med par' : (relToPar > 0 ? '+' + relToPar : String(relToPar)) + ' mot par';
+    var summary = holesEntered + ' av ' + n + ' hål ifyllda — totalt ' + totalScore + ' slag (' + relText + ')';
+    if (handicap != null){
+      var netRelToPar = (totalScore - totalStrokes) - totalParSoFar;
+      var netRelText = netRelToPar === 0 ? 'jämnt med par' : (netRelToPar > 0 ? '+' + netRelToPar : String(netRelToPar)) + ' mot par';
+      summary += ', netto ' + (totalScore - totalStrokes) + ' slag (' + netRelText + ')';
+    }
+    summaryEl.textContent = summary + '.';
   }
 
   function computeTeam(sortedCh){
@@ -887,9 +1324,23 @@
       refreshCourseSelects();
       return;
     }
+
   });
 
   document.getElementById('add-team-btn').addEventListener('click', addTeam);
+
+  document.getElementById('guide-bana-select').innerHTML = guideBanaOptionsHtml();
+  document.getElementById('guide-bana-select').addEventListener('change', function(e){
+    renderGuideContent(e.target.value);
+  });
+
+  document.getElementById('toggle-guide-btn').addEventListener('click', function(){
+    var section = document.getElementById('guide-section');
+    var nowHidden = !section.hidden;
+    section.hidden = nowHidden;
+    this.classList.toggle('active', !nowHidden);
+    this.textContent = nowHidden ? '🏌️ Visa banguide' : '🏌️ Dölj banguide';
+  });
 
   document.addEventListener('change', function(e){
     if (e.target.classList && e.target.classList.contains('adv-toggle')){
@@ -921,6 +1372,11 @@
   });
 
   document.addEventListener('input', function(e){
+    if (e.target.id === 'guide-handicap-input' ||
+        (e.target.classList && e.target.classList.contains('guide-score-input'))){
+      updateGuideSummary();
+      return;
+    }
     if (e.target.tagName === 'INPUT') renderAll();
   });
 
