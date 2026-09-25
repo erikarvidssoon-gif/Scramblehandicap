@@ -441,27 +441,38 @@
   table.guide-scorecard .sc-strokes-row td{ color:var(--green-600); letter-spacing:1px; }
   table.guide-scorecard .sc-net-row td{ font-weight:700; }
 
-  .score-mark{
-    display:inline-flex; align-items:center; justify-content:center;
-    width:1.7em; height:1.7em;
-    box-sizing:border-box;
+  table.guide-scorecard input.sc-score-input{
+    width:2.1em; height:2.1em;
+    min-width:0;
+    padding:0;
+    margin:0 auto;
+    display:block;
+    text-align:center;
+    font-size:1rem;
     font-weight:700;
-    font-variant-numeric:tabular-nums;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-900);
+    -moz-appearance:textfield;
+    appearance:textfield;
   }
-  .score-mark.mark-circle{
+  table.guide-scorecard input.sc-score-input::-webkit-outer-spin-button,
+  table.guide-scorecard input.sc-score-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  table.guide-scorecard input.sc-score-input.mark-circle{
     border-radius:50%;
     border:1.5px solid var(--gold-600);
     color:var(--gold-600);
   }
-  .score-mark.mark-circle.mark-double{
-    box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--gold-600);
-  }
-  .score-mark.mark-square{
+  table.guide-scorecard input.sc-score-input.mark-square{
     border-radius:2px;
     border:1.5px solid var(--red-600);
     color:var(--red-600);
   }
-  .score-mark.mark-square.mark-double{
+  table.guide-scorecard input.sc-score-input.mark-circle.mark-double{
+    box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--gold-600);
+  }
+  table.guide-scorecard input.sc-score-input.mark-square.mark-double{
     box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--red-600);
   }
 
@@ -781,7 +792,8 @@
       headerHtml += '<th>' + holeNum + '</th>';
       indexRow += '<td>' + data.holes[i].index + '</td>';
       parRow += '<td>' + data.holes[i].par + '</td>';
-      scoreRow += '<td id="sc-score-' + holeNum + '">–</td>';
+      scoreRow += '<td><input type="number" class="sc-score-input" id="sc-input-' + holeNum + '" data-hole="' + holeNum +
+        '" min="1" step="1" inputmode="numeric" aria-label="Score hål ' + holeNum + '"></td>';
       diffRow += '<td id="sc-diff-' + holeNum + '">–</td>';
       strokesRow += '<td id="sc-strokes-' + holeNum + '">–</td>';
       netRow += '<td id="sc-net-' + holeNum + '">–</td>';
@@ -872,20 +884,15 @@
     if (el) el.textContent = text;
   }
 
-  function setCellHtml(id, html){
-    var el = document.getElementById(id);
-    if (el) el.innerHTML = html;
-  }
-
   // Traditionell scorekortsnotation: cirkel = under par (dubbel cirkel = 2 under eller bättre),
   // fyrkant = över par (dubbel fyrkant = 2 över eller sämre).
-  function scoreMarkHtml(score, par){
+  function applyScoreMark(el, score, par){
+    el.classList.remove('mark-circle', 'mark-square', 'mark-double');
+    if (score == null) return;
     var diff = score - par;
-    if (diff <= -2) return '<span class="score-mark mark-circle mark-double">' + score + '</span>';
-    if (diff === -1) return '<span class="score-mark mark-circle">' + score + '</span>';
-    if (diff === 1) return '<span class="score-mark mark-square">' + score + '</span>';
-    if (diff >= 2) return '<span class="score-mark mark-square mark-double">' + score + '</span>';
-    return String(score);
+    if (diff < 0) el.classList.add('mark-circle');
+    if (diff > 0) el.classList.add('mark-square');
+    if (Math.abs(diff) >= 2) el.classList.add('mark-double');
   }
 
   // Standardfördelning av handicapslag: ett extra slag per 18 i handicapet, plus ett
@@ -924,7 +931,11 @@
       var has = !isNaN(val) && val > 0;
       var strokes = strokesForHole(handicap, h.index);
 
-      setCellHtml('sc-score-' + holeNum, has ? scoreMarkHtml(val, h.par) : '–');
+      var tableInput = document.getElementById('sc-input-' + holeNum);
+      if (tableInput){
+        if (tableInput !== document.activeElement) tableInput.value = has ? val : '';
+        applyScoreMark(tableInput, has ? val : null, h.par);
+      }
       setCell('sc-diff-' + holeNum, has ? diffText(val - h.par) : '–');
       setCell('sc-strokes-' + holeNum, strokes == null ? '–' : strokeDots(strokes));
       setCell('sc-net-' + holeNum, (has && strokes != null) ? (val - strokes) : '–');
@@ -1372,6 +1383,12 @@
   });
 
   document.addEventListener('input', function(e){
+    if (e.target.classList && e.target.classList.contains('sc-score-input')){
+      var holeInput = document.getElementById('guide-score-' + e.target.dataset.hole);
+      if (holeInput) holeInput.value = e.target.value;
+      updateGuideSummary();
+      return;
+    }
     if (e.target.id === 'guide-handicap-input' ||
         (e.target.classList && e.target.classList.contains('guide-score-input'))){
       updateGuideSummary();
