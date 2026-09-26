@@ -453,12 +453,15 @@
   table.rh-table th:first-child, table.rh-table td:first-child{ text-align:left; font-weight:700; overflow-wrap:anywhere; }
   .rh-scores{ font-size:0.82rem; color:var(--ink-600); margin:4px 0; line-height:1.5; font-variant-numeric:tabular-nums; }
   .rh-scores strong{ color:var(--ink-900); }
+  /* Fasta kolumnbredder: spelare 1 står närmast hålkolumnerna och fler spelare läggs till åt höger. */
   table.round-card-table{
-    width:100%;
+    width:auto;
+    align-self:flex-start;
     border-collapse:collapse;
     table-layout:fixed;
     font-variant-numeric:tabular-nums;
   }
+  table.round-card-table col.rc-col-player{ width:3.6em; }
   table.round-card-table col.rc-col-hole{ width:2.8em; }
   table.round-card-table col.rc-col-par{ width:2.3em; }
   table.round-card-table col.rc-col-idx{ width:2.3em; }
@@ -532,6 +535,10 @@
     .round-section.card{ padding:16px 12px; }
     table.round-card-table col.rc-col-hole{ width:2.3em; }
     table.round-card-table col.rc-col-par, table.round-card-table col.rc-col-idx{ width:1.9em; }
+    table.round-card-table col.rc-col-player{ width:3.1em; }
+  }
+  @media (max-width:350px){
+    table.round-card-table col.rc-col-player{ width:2.7em; }
   }
   .guide-section{ display:flex; flex-direction:column; gap:12px; }
   .guide-picker-row{ display:flex; gap:14px; flex-wrap:wrap; }
@@ -1712,7 +1719,7 @@
     var cols = '<colgroup><col class="rc-col-hole"><col class="rc-col-par"><col class="rc-col-idx">';
     var head = '<tr><th>Hål</th><th>Par</th><th>Idx</th>';
     for (var i = 0; i < count; i++){
-      cols += '<col>';
+      cols += '<col class="rc-col-player">';
       head += '<th class="rc-player-head"><span class="rc-name" id="rc-name-' + i + '"></span><span class="rc-ch" id="rc-ch-' + i + '"></span></th>';
     }
     cols += '</colgroup>';
