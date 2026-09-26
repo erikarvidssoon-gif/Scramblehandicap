@@ -405,6 +405,32 @@
 
   .round-card{ display:flex; flex-direction:column; gap:10px; min-width:0; }
   .round-card-actions{ display:flex; justify-content:flex-end; align-items:center; gap:10px; flex-wrap:wrap; }
+  .round-quickpick{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+  .round-quickpick:empty{ display:none; }
+  .qp-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .qp-edit-btn{
+    font:inherit; font-size:0.8rem;
+    border:none; background:transparent;
+    color:var(--ink-600); text-decoration:underline;
+    cursor:pointer; padding:4px 2px;
+  }
+  .qp-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .qp-chip{
+    font:inherit; font-size:0.9rem; font-weight:600;
+    display:inline-flex; align-items:baseline; gap:6px;
+    padding:8px 14px;
+    min-height:40px;
+    border-radius:999px;
+    border:1px solid var(--green-600);
+    background:var(--bg);
+    color:var(--ink-900);
+    cursor:pointer;
+    max-width:100%;
+  }
+  .qp-chip small{ font-size:0.75rem; font-weight:600; color:var(--gold-600); }
+  .qp-chip:hover{ background:var(--cream-100); }
+  .qp-chip.used{ opacity:0.45; cursor:default; border-style:dashed; }
+  .qp-chip.editing{ border-color:var(--red-600); color:var(--red-600); }
   .round-history{ display:flex; flex-direction:column; gap:10px; min-width:0; }
   .round-history:empty{ display:none; }
   .rh-item{
@@ -684,6 +710,7 @@
         <button type="button" class="count-btn round-count-btn" data-round-count="4">4</button>
       </div>
     </div>
+    <div class="round-quickpick" id="round-quickpick"></div>
     <div class="round-players" id="round-players"></div>
     <div class="round-card" id="round-card"></div>
     <div class="round-history" id="round-history"></div>
@@ -1668,6 +1695,7 @@
     document.querySelectorAll('.round-count-btn').forEach(function(b){
       b.classList.toggle('active', parseInt(b.dataset.roundCount, 10) === round.count);
     });
+    renderQuickpick();
     buildRoundCard();
   }
 
@@ -1799,6 +1827,87 @@
     try { localStorage.setItem(HISTORY_KEY, JSON.stringify(roundHistory)); } catch(e){}
   }
 
+  // ---- Snabbval: spelare från sparade rundor ----
+  var KNOWN_KEY = 'scramble-known-players';
+  var MAX_KNOWN = 16;
+  var knownPlayers = [];   // senast använd först: { name, hcp, gender, tees: { bana: tee } }
+  var quickpickEdit = false;
+
+  function saveKnown(){
+    try { localStorage.setItem(KNOWN_KEY, JSON.stringify(knownPlayers)); } catch(e){}
+  }
+
+  function rememberPlayers(list){
+    list.forEach(function(p){
+      var name = (p.name || '').trim();
+      if (!name) return;
+      var old = knownPlayers.find(function(k){ return k.name.toLowerCase() === name.toLowerCase(); });
+      var tees = old && old.tees ? old.tees : {};
+      var bana = p.bana || round.bana;
+      if (p.tee && bana) tees[bana] = p.tee;
+      knownPlayers = knownPlayers.filter(function(k){ return k !== old; });
+      knownPlayers.unshift({ name: name, hcp: p.hcp == null ? '' : String(p.hcp), gender: p.gender === 'D' ? 'D' : 'H', tees: tees });
+    });
+    knownPlayers = knownPlayers.slice(0, MAX_KNOWN);
+    saveKnown();
+  }
+
+  function loadKnown(){
+    try {
+      var k = JSON.parse(localStorage.getItem(KNOWN_KEY) || 'null');
+      if (Array.isArray(k)){ knownPlayers = k.filter(function(p){ return p && p.name; }); return; }
+    } catch(e){}
+    // Första gången: bygg listan från redan sparade rundor (äldst först så att de senaste hamnar överst).
+    roundHistory.slice().reverse().forEach(function(h){
+      rememberPlayers(h.players.map(function(p){
+        return { name: /^S\d$/.test(p.name) ? '' : p.name, hcp: p.hcp, gender: p.gender, tee: p.tee, bana: h.bana };
+      }));
+    });
+    saveKnown();
+  }
+
+  function playerInRound(name){
+    for (var i = 0; i < round.count; i++){
+      if (round.players[i].name.trim().toLowerCase() === name.toLowerCase()) return true;
+    }
+    return false;
+  }
+
+  function renderQuickpick(){
+    var el = document.getElementById('round-quickpick');
+    if (!knownPlayers.length){ el.innerHTML = ''; quickpickEdit = false; return; }
+    var chips = knownPlayers.map(function(k, idx){
+      var used = !quickpickEdit && playerInRound(k.name);
+      return '<button type="button" class="qp-chip' + (used ? ' used' : '') + (quickpickEdit ? ' editing' : '') + '" data-qp="' + idx + '"' +
+        (used ? ' disabled' : '') + '>' +
+        (quickpickEdit ? '✕ ' : '') + escapeHtml(k.name) +
+        (k.hcp !== '' ? '<small>' + escapeHtml(k.hcp) + '</small>' : '') +
+      '</button>';
+    }).join('');
+    el.innerHTML =
+      '<div class="qp-head">' +
+        '<span class="count-label">' + (quickpickEdit ? 'Tryck för att ta bort' : 'Tidigare spelare') + '</span>' +
+        '<button type="button" class="qp-edit-btn" id="qp-edit-btn">' + (quickpickEdit ? 'Klar' : 'Ändra') + '</button>' +
+      '</div>' +
+      '<div class="qp-chips">' + chips + '</div>';
+  }
+
+  function isEmptySlot(p){ return !p.name.trim() && String(p.hcp).trim() === ''; }
+
+  function quickpickAdd(k){
+    var slot = -1;
+    for (var i = 0; i < round.count; i++){ if (isEmptySlot(round.players[i])){ slot = i; break; } }
+    if (slot === -1){
+      if (round.count >= 4){ alert('Alla fyra platser är redan fyllda.'); return; }
+      slot = round.count;
+      round.count++;
+    }
+    var remembered = k.tees && k.tees[round.bana];
+    round.players[slot] = { name: k.name, hcp: k.hcp, gender: k.gender, tee: remembered || '' };
+    renderRoundPlayers();
+    saveRound();
+  }
+
   function saveRoundResult(){
     if (!roundHasScores()){
       alert('Fyll i minst ett hål innan du sparar resultatet.');
@@ -1828,6 +1937,7 @@
       })
     });
     saveHistory();
+    rememberPlayers(played.map(function(r){ return round.players[results.indexOf(r)]; }));
 
     // Ny runda: banan ligger kvar, men slag och spelare töms.
     round.scores = [[], [], [], []];
@@ -1897,6 +2007,7 @@
     document.getElementById('round-readout-' + (i + 1)).innerHTML = roundReadout(p);
     saveRound();
     updateRoundCard();
+    if (field === 'name' || field === 'hcp') renderQuickpick();
   }
 
   function handleRoundClick(e){
@@ -1913,6 +2024,24 @@
       round.players[i].gender = genderBtn.dataset.gender;
       renderRoundPlayers();
       saveRound();
+      return true;
+    }
+    if (e.target.closest('#qp-edit-btn')){
+      quickpickEdit = !quickpickEdit;
+      renderQuickpick();
+      return true;
+    }
+    var chip = e.target.closest('.qp-chip');
+    if (chip){
+      var k = knownPlayers[parseInt(chip.dataset.qp, 10)];
+      if (!k) return true;
+      if (quickpickEdit){
+        knownPlayers = knownPlayers.filter(function(x){ return x !== k; });
+        saveKnown();
+        renderQuickpick();
+      } else {
+        quickpickAdd(k);
+      }
       return true;
     }
     if (e.target.closest('#rc-save-btn')){
@@ -2047,6 +2176,8 @@
   renderRoundPlayers();
   loadHistory();
   renderHistory();
+  loadKnown();
+  renderQuickpick();
 
   document.getElementById('toggle-round-btn').addEventListener('click', function(){
     var section = document.getElementById('round-section');
