@@ -1809,9 +1809,8 @@
     for (var i = 0; i < round.count; i++) results.push(roundPlayerResult(i));
     var played = results.filter(function(r){ return r.tot[1] > 0; });
     var complete = played.every(function(r){ return r.tot[1] === n; });
-    var msg = complete
-      ? 'Spara resultatet och rensa scorekortet?'
-      : 'Alla hål är inte ifyllda. Spara resultatet ändå och rensa scorekortet?';
+    var msg = (complete ? 'Spara resultatet?' : 'Alla hål är inte ifyllda. Spara resultatet ändå?') +
+      '\n\nScorekortet och spelarna töms så att du kan lägga in nya spelare till nästa runda.';
     if (!window.confirm(msg)) return;
 
     roundHistory.unshift({
@@ -1830,9 +1829,12 @@
     });
     saveHistory();
 
+    // Ny runda: banan ligger kvar, men slag och spelare töms.
     round.scores = [[], [], [], []];
+    round.count = 1;
+    round.players = round.players.map(function(){ return { name: '', hcp: '', gender: 'H', tee: '' }; });
+    renderRoundPlayers();
     saveRound();
-    updateRoundCard();
     renderHistory(roundHistory[0].id);
     document.getElementById('round-history').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
