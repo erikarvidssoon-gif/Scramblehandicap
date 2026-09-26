@@ -404,7 +404,29 @@
   .round-hcp-readout strong{ color:var(--gold-600); font-size:1.05rem; }
 
   .round-card{ display:flex; flex-direction:column; gap:10px; min-width:0; }
-  .round-card-actions{ display:flex; justify-content:flex-end; }
+  .round-card-actions{ display:flex; justify-content:flex-end; align-items:center; gap:10px; flex-wrap:wrap; }
+  .round-history{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .round-history:empty{ display:none; }
+  .rh-item{
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:var(--bg);
+    padding:10px 12px;
+    min-width:0;
+  }
+  .rh-item summary{ cursor:pointer; display:flex; flex-direction:column; gap:2px; list-style:none; }
+  .rh-item summary::-webkit-details-marker{ display:none; }
+  .rh-title::before{ content:"▸ "; color:var(--ink-600); }
+  .rh-item[open] .rh-title::before{ content:"▾ "; }
+  .rh-title{ font-weight:700; color:var(--ink-900); }
+  .rh-meta{ font-size:0.85rem; color:var(--ink-600); }
+  .rh-item[open] summary{ margin-bottom:10px; }
+  table.rh-table{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; margin-bottom:8px; }
+  table.rh-table th, table.rh-table td{ padding:6px 4px; text-align:center; border-bottom:1px solid var(--line); font-size:0.95rem; }
+  table.rh-table th{ font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-600); }
+  table.rh-table th:first-child, table.rh-table td:first-child{ text-align:left; font-weight:700; overflow-wrap:anywhere; }
+  .rh-scores{ font-size:0.82rem; color:var(--ink-600); margin:4px 0; line-height:1.5; font-variant-numeric:tabular-nums; }
+  .rh-scores strong{ color:var(--ink-900); }
   table.round-card-table{
     width:100%;
     border-collapse:collapse;
@@ -664,6 +686,7 @@
     </div>
     <div class="round-players" id="round-players"></div>
     <div class="round-card" id="round-card"></div>
+    <div class="round-history" id="round-history"></div>
   </div>
 
   <div class="card guide-section" id="guide-section" hidden>
@@ -1704,46 +1727,154 @@
       '<h2 class="leaderboard-title">Scorekort</h2>' +
       '<p class="guide-note">' + note + '</p>' +
       '<table class="round-card-table">' + cols + '<thead>' + head + '</thead><tbody>' + body + '</tbody></table>' +
-      '<div class="round-card-actions"><button type="button" class="rc-clear-btn" id="rc-clear-btn">Rensa alla slag</button></div>';
+      '<div class="round-card-actions">' +
+        '<button type="button" class="rc-clear-btn" id="rc-clear-btn">Rensa slag</button>' +
+        '<button type="button" class="add-team-btn active" id="rc-save-btn">💾 Spara resultat</button>' +
+      '</div>';
     updateRoundCard();
+  }
+
+  // Räknar ihop en spelares runda: slag per hål, hcp-slag och summor för ut/in/totalt.
+  function roundPlayerResult(i){
+    var p = round.players[i];
+    var ch = roundCourseHcp(p);
+    var scores = round.scores[i];
+    var r = {
+      name: p.name.trim() || 'S' + (i + 1), ch: ch, holes: [],
+      out: [0, 0], in: [0, 0], tot: [0, 0],  // [slag, antal hål]
+      parPlayed: 0, strokesPlayed: 0
+    };
+    roundHoles(p.gender).forEach(function(h, hi){
+      var strokes = ch == null ? null : strokesForHole(ch, h.index);
+      var val = parseInt(scores[hi], 10);
+      var has = !isNaN(val) && val > 0;
+      r.holes.push({ par: h.par, strokes: strokes, score: has ? val : null });
+      if (!has) return;
+      var half = hi < 9 ? r.out : r.in;
+      half[0] += val; half[1]++;
+      r.tot[0] += val; r.tot[1]++;
+      r.parPlayed += h.par;
+      if (strokes != null) r.strokesPlayed += strokes;
+    });
+    r.net = r.tot[1] && ch != null ? r.tot[0] - r.strokesPlayed : null;
+    return r;
   }
 
   function updateRoundCard(){
     if (!document.getElementById('rc-s-0-0')) return;
     for (var i = 0; i < round.count; i++){
-      var p = round.players[i];
-      var holes = roundHoles(p.gender);
-      var ch = roundCourseHcp(p);
-      var scores = round.scores[i];
-      setCell('rc-name-' + i, p.name.trim() || 'S' + (i + 1));
-      setCell('rc-ch-' + i, ch == null ? 'hcp –' : 'hcp ' + ch);
+      var r = roundPlayerResult(i);
+      setCell('rc-name-' + i, r.name);
+      setCell('rc-ch-' + i, r.ch == null ? 'hcp –' : 'hcp ' + r.ch);
 
-      var t = { out: [0, 0], in: [0, 0], tot: [0, 0] };  // [slag, antal hål]
-      var parPlayed = 0, strokesPlayed = 0;
-      holes.forEach(function(h, hi){
-        var strokes = ch == null ? null : strokesForHole(ch, h.index);
-        setCell('rc-dots-' + i + '-' + hi, !strokes ? '' : new Array(Math.abs(strokes) + 1).join(strokes > 0 ? '•' : '+'));
-        var val = parseInt(scores[hi], 10);
-        var has = !isNaN(val) && val > 0;
+      r.holes.forEach(function(h, hi){
+        var s = h.strokes;
+        setCell('rc-dots-' + i + '-' + hi, !s ? '' : new Array(Math.abs(s) + 1).join(s > 0 ? '•' : '+'));
         var input = document.getElementById('rc-s-' + i + '-' + hi);
-        if (input !== document.activeElement) input.value = has ? val : '';
-        applyScoreMark(input, has ? val : null, h.par);
-        if (!has) return;
-        var half = hi < 9 ? t.out : t.in;
-        half[0] += val; half[1]++;
-        t.tot[0] += val; t.tot[1]++;
-        parPlayed += h.par;
-        if (strokes != null) strokesPlayed += strokes;
+        if (input !== document.activeElement) input.value = h.score == null ? '' : h.score;
+        applyScoreMark(input, h.score, h.par);
       });
 
-      setCell('rc-out-' + i, t.out[1] ? t.out[0] : '–');
-      setCell('rc-in-' + i, t.in[1] ? t.in[0] : '–');
-      setCell('rc-tot-' + i, t.tot[1] ? t.tot[0] : '–');
-      setCell('rc-diff-' + i, t.tot[1] ? diffText(t.tot[0] - parPlayed) : '–');
-      var netOk = t.tot[1] && ch != null;
-      setCell('rc-net-' + i, netOk ? t.tot[0] - strokesPlayed : '–');
-      setCell('rc-netdiff-' + i, netOk ? diffText(t.tot[0] - strokesPlayed - parPlayed) : '–');
+      setCell('rc-out-' + i, r.out[1] ? r.out[0] : '–');
+      setCell('rc-in-' + i, r.in[1] ? r.in[0] : '–');
+      setCell('rc-tot-' + i, r.tot[1] ? r.tot[0] : '–');
+      setCell('rc-diff-' + i, r.tot[1] ? diffText(r.tot[0] - r.parPlayed) : '–');
+      setCell('rc-net-' + i, r.net == null ? '–' : r.net);
+      setCell('rc-netdiff-' + i, r.net == null ? '–' : diffText(r.net - r.parPlayed));
     }
+  }
+
+  // ---- Sparade rundor ----
+  var HISTORY_KEY = 'scramble-round-history';
+  var roundHistory = [];
+
+  function loadHistory(){
+    try {
+      var h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+      roundHistory = Array.isArray(h) ? h : [];
+    } catch(e){ roundHistory = []; }
+  }
+
+  function saveHistory(){
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(roundHistory)); } catch(e){}
+  }
+
+  function saveRoundResult(){
+    if (!roundHasScores()){
+      alert('Fyll i minst ett hål innan du sparar resultatet.');
+      return;
+    }
+    var n = roundHoles('H').length;
+    var results = [];
+    for (var i = 0; i < round.count; i++) results.push(roundPlayerResult(i));
+    var played = results.filter(function(r){ return r.tot[1] > 0; });
+    var complete = played.every(function(r){ return r.tot[1] === n; });
+    var msg = complete
+      ? 'Spara resultatet och rensa scorekortet?'
+      : 'Alla hål är inte ifyllda. Spara resultatet ändå och rensa scorekortet?';
+    if (!window.confirm(msg)) return;
+
+    roundHistory.unshift({
+      id: String(Date.now()),
+      date: new Date().toISOString(),
+      bana: round.bana,
+      holeCount: n,
+      players: played.map(function(r){
+        var p = round.players[results.indexOf(r)];
+        return {
+          name: r.name, hcp: p.hcp, tee: p.tee, gender: p.gender, ch: r.ch,
+          gross: r.tot[0], holesPlayed: r.tot[1], parPlayed: r.parPlayed, net: r.net,
+          scores: r.holes.map(function(h){ return h.score; })
+        };
+      })
+    });
+    saveHistory();
+
+    round.scores = [[], [], [], []];
+    saveRound();
+    updateRoundCard();
+    renderHistory(roundHistory[0].id);
+    document.getElementById('round-history').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function formatRoundDate(iso){
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' }) +
+      ' ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderHistory(openId){
+    var el = document.getElementById('round-history');
+    if (!roundHistory.length){ el.innerHTML = ''; return; }
+    var html = '<h2 class="leaderboard-title">Sparade rundor</h2>';
+    roundHistory.forEach(function(h){
+      var rows = '', lines = '';
+      h.players.forEach(function(p){
+        var gross = p.holesPlayed ? p.gross : '–';
+        var diff = p.holesPlayed ? diffText(p.gross - p.parPlayed) : '–';
+        var net = p.net == null ? '–' : p.net + ' (' + diffText(p.net - p.parPlayed) + ')';
+        rows += '<tr><td>' + escapeHtml(p.name) + '</td><td>' + (p.ch == null ? '–' : p.ch) + '</td><td>' + gross +
+          '</td><td>' + diff + '</td><td>' + net + '</td></tr>';
+        var sc = (p.scores || []).map(function(v){ return v == null ? '–' : v; });
+        var scText = sc.length > 9
+          ? '1–9: ' + sc.slice(0, 9).join(' ') + '<br>10–' + sc.length + ': ' + sc.slice(9).join(' ')
+          : sc.join(' ');
+        lines += '<p class="rh-scores"><strong>' + escapeHtml(p.name) + '</strong>' +
+          (p.holesPlayed < h.holeCount ? ' <em>(' + p.holesPlayed + ' av ' + h.holeCount + ' hål)</em>' : '') +
+          '<br>' + scText + '</p>';
+      });
+      var who = h.players.map(function(p){ return escapeHtml(p.name) + ' ' + (p.holesPlayed ? p.gross : '–'); }).join(' · ');
+      html += '<details class="rh-item"' + (h.id === openId ? ' open' : '') + '>' +
+        '<summary><span class="rh-title">' + escapeHtml(h.bana) + '</span>' +
+          '<span class="rh-meta">' + formatRoundDate(h.date) + ' · ' + who + '</span></summary>' +
+        '<table class="rh-table"><thead><tr><th>Spelare</th><th>Hcp</th><th>Brutto</th><th>+/−</th><th>Netto</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody></table>' +
+        lines +
+        '<div class="round-card-actions"><button type="button" class="rc-clear-btn rh-delete-btn" data-rh="' + h.id + '">Ta bort rundan</button></div>' +
+      '</details>';
+    });
+    el.innerHTML = html;
   }
 
   function handleRoundScore(target){
@@ -1780,6 +1911,19 @@
       round.players[i].gender = genderBtn.dataset.gender;
       renderRoundPlayers();
       saveRound();
+      return true;
+    }
+    if (e.target.closest('#rc-save-btn')){
+      saveRoundResult();
+      return true;
+    }
+    var rhDelete = e.target.closest('.rh-delete-btn');
+    if (rhDelete){
+      if (window.confirm('Ta bort den sparade rundan?')){
+        roundHistory = roundHistory.filter(function(h){ return h.id !== rhDelete.dataset.rh; });
+        saveHistory();
+        renderHistory();
+      }
       return true;
     }
     if (e.target.closest('#rc-clear-btn')){
@@ -1899,6 +2043,8 @@
   loadRound();
   document.getElementById('round-bana-select').value = round.bana;
   renderRoundPlayers();
+  loadHistory();
+  renderHistory();
 
   document.getElementById('toggle-round-btn').addEventListener('click', function(){
     var section = document.getElementById('round-section');
