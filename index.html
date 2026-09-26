@@ -402,6 +402,89 @@
   .round-player-row label{ flex:1 1 90px; min-width:0; }
   .round-hcp-readout{ font-size:0.88rem; color:var(--ink-600); line-height:1.4; }
   .round-hcp-readout strong{ color:var(--gold-600); font-size:1.05rem; }
+
+  .round-card{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .round-card-actions{ display:flex; justify-content:flex-end; }
+  table.round-card-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-variant-numeric:tabular-nums;
+  }
+  table.round-card-table col.rc-col-hole{ width:2.8em; }
+  table.round-card-table col.rc-col-par{ width:2.3em; }
+  table.round-card-table col.rc-col-idx{ width:2.3em; }
+  table.round-card-table th, table.round-card-table td{
+    padding:4px 2px;
+    text-align:center;
+    font-size:1rem;
+    border-bottom:1px solid var(--line);
+  }
+  /* Rubrikraden följer med när man scrollar, så spelarnamnen alltid syns. */
+  table.round-card-table thead th{
+    position:sticky; top:0; z-index:2;
+    background:var(--surface);
+    border-bottom:2px solid var(--line);
+    font-size:0.72rem; font-weight:700; color:var(--ink-600);
+    text-transform:uppercase; letter-spacing:0.04em;
+    padding:8px 2px;
+    vertical-align:bottom;
+  }
+  table.round-card-table th.rc-player-head{ text-transform:none; letter-spacing:0; }
+  .rc-name{
+    display:block;
+    font-size:0.85rem; color:var(--ink-900);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .rc-ch{ display:block; font-size:0.72rem; font-weight:600; color:var(--gold-600); }
+  table.round-card-table td.rc-hole{ font-weight:700; color:var(--ink-900); }
+  .rc-hole-lap{ display:block; font-size:0.68rem; font-weight:500; color:var(--ink-600); line-height:1; }
+  table.round-card-table td.rc-idx{ font-size:0.8rem; color:var(--ink-600); }
+  table.round-card-table td.rc-cell{ position:relative; padding:5px 2px; }
+  .rc-dots{
+    position:absolute; top:0; right:1px; z-index:1;
+    font-size:0.85rem; font-weight:700; line-height:1; letter-spacing:0;
+    color:var(--green-600);
+    pointer-events:none;
+  }
+  table.round-card-table tr.rc-sum-row td{ font-weight:700; background:var(--cream-100); }
+  table.round-card-table tr.rc-sum-row td.rc-hole{ font-size:0.78rem; line-height:1.1; }
+  table.round-card-table tr.rc-diff-row td{ font-weight:700; color:var(--gold-600); }
+  table.round-card-table tr.rc-net-row td{ font-weight:700; }
+  table.round-card-table td.rc-label{ text-align:left; padding-left:6px; }
+  table.round-card-table input.rc-input{
+    width:100%; max-width:2.4em; height:2.3em;
+    min-width:0;
+    padding:0;
+    margin:0 auto;
+    display:block;
+    text-align:center;
+    font-size:1.05rem;
+    font-weight:700;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-900);
+    -moz-appearance:textfield;
+    appearance:textfield;
+  }
+  table.round-card-table input.rc-input::-webkit-outer-spin-button,
+  table.round-card-table input.rc-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .rc-clear-btn{
+    font:inherit; font-size:0.85rem;
+    padding:7px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink-600);
+    cursor:pointer;
+  }
+  .rc-clear-btn:hover{ color:var(--red-600); border-color:var(--red-600); }
+  @media (max-width:520px){
+    .round-section.card{ padding:16px 12px; }
+    table.round-card-table col.rc-col-hole{ width:2.3em; }
+    table.round-card-table col.rc-col-par, table.round-card-table col.rc-col-idx{ width:1.9em; }
+  }
   .guide-section{ display:flex; flex-direction:column; gap:12px; }
   .guide-picker-row{ display:flex; gap:14px; flex-wrap:wrap; }
   .guide-picker-row label{ flex:1 1 160px; min-width:0; }
@@ -505,20 +588,24 @@
   }
   table.guide-scorecard input.sc-score-input::-webkit-outer-spin-button,
   table.guide-scorecard input.sc-score-input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
-  table.guide-scorecard input.sc-score-input.mark-circle{
+  table.guide-scorecard input.sc-score-input.mark-circle,
+  table.round-card-table input.rc-input.mark-circle{
     border-radius:50%;
     border:1.5px solid var(--gold-600);
     color:var(--gold-600);
   }
-  table.guide-scorecard input.sc-score-input.mark-square{
+  table.guide-scorecard input.sc-score-input.mark-square,
+  table.round-card-table input.rc-input.mark-square{
     border-radius:2px;
     border:1.5px solid var(--red-600);
     color:var(--red-600);
   }
-  table.guide-scorecard input.sc-score-input.mark-circle.mark-double{
+  table.guide-scorecard input.sc-score-input.mark-circle.mark-double,
+  table.round-card-table input.rc-input.mark-circle.mark-double{
     box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--gold-600);
   }
-  table.guide-scorecard input.sc-score-input.mark-square.mark-double{
+  table.guide-scorecard input.sc-score-input.mark-square.mark-double,
+  table.round-card-table input.rc-input.mark-square.mark-double{
     box-shadow: 0 0 0 2.5px var(--surface), 0 0 0 4px var(--red-600);
   }
 
@@ -576,6 +663,7 @@
       </div>
     </div>
     <div class="round-players" id="round-players"></div>
+    <div class="round-card" id="round-card"></div>
   </div>
 
   <div class="card guide-section" id="guide-section" hidden>
@@ -883,7 +971,11 @@
 
   // Par/index/längd för vald tee. Damvärden används bara om banan har damdata (refTeeD).
   function guideHoles(data){
-    var dam = currentGuideGender === 'D' && data.refTeeD;
+    return holesFor(data, currentGuideGender);
+  }
+
+  function holesFor(data, gender){
+    var dam = gender === 'D' && data.refTeeD;
     return data.holes.map(function(h){
       return {
         par: dam && h.parD != null ? h.parD : h.par,
@@ -1420,7 +1512,7 @@
 
   // ---- Runda: registrering av 1–4 spelare (namn, hcp-index, kön, tee) ----
   var ROUND_KEY = 'scramble-round';
-  var round = { bana: '', count: 1, players: [] };
+  var round = { bana: '', count: 1, players: [], scores: [[], [], [], []] };
   for (var rp = 0; rp < 4; rp++) round.players.push({ name: '', hcp: '', gender: 'H', tee: '' });
 
   function loadRound(){
@@ -1437,7 +1529,45 @@
           tee: p.tee || ''
         };
       });
+      (s.scores || []).slice(0, 4).forEach(function(arr, i){
+        round.scores[i] = (Array.isArray(arr) ? arr : []).slice(0, 18).map(function(v){
+          return /^\d{1,2}$/.test(String(v)) ? String(v) : '';
+        });
+      });
     } catch(e){}
+  }
+
+  function roundHasScores(){
+    return round.scores.some(function(arr){ return arr.some(function(v){ return v !== '' && v != null; }); });
+  }
+
+  // En 9-hålsbana vars par i databasen är dubbla hålens par spelas som två varv.
+  // Varv 1 har udda index och varv 2 får nästa jämna (index + 1), som på vanliga 9-hålsscorekort.
+  function roundLaps(){
+    var data = HOLE_DATA[round.bana];
+    if (!data) return 1;
+    var holesPar = data.holes.reduce(function(s, h){ return s + h.par; }, 0);
+    var c = PRESET_COURSES.find(function(x){ return x.bana === round.bana && x.par != null; });
+    return c && c.par === holesPar * 2 ? 2 : 1;
+  }
+
+  function roundHoles(gender){
+    var data = HOLE_DATA[round.bana];
+    if (!data) return [];
+    var base = holesFor(data, gender);
+    if (roundLaps() === 1) return base;
+    return base.concat(base.map(function(h){ return { par: h.par, index: h.index + 1, length: h.length }; }));
+  }
+
+  function roundTeeCourse(p){
+    return PRESET_COURSES.find(function(x){ return x.bana === round.bana && x.kon === p.gender && x.tee === p.tee; });
+  }
+
+  function roundCourseHcp(p){
+    var c = roundTeeCourse(p);
+    var idx = parseFloat(String(p.hcp).replace(',', '.'));
+    if (!c || isNaN(idx) || c.slope == null || c.cr == null || c.par == null) return null;
+    return Math.round(idx * c.slope / 113 + (c.cr - c.par));
   }
 
   function saveRound(){
@@ -1467,12 +1597,12 @@
 
   function roundReadout(p){
     if (!round.bana) return 'Välj bana för att räkna ut banahandicap.';
-    var c = PRESET_COURSES.find(function(x){ return x.bana === round.bana && x.kon === p.gender && x.tee === p.tee; });
+    var c = roundTeeCourse(p);
     if (!c) return roundTees(p).length ? 'Välj tee.' : 'Banan saknar ' + (p.gender === 'D' ? 'damtee' : 'herrtee') + ' i databasen.';
     var idx = parseFloat(String(p.hcp).replace(',', '.'));
     if (isNaN(idx)) return 'Fyll i handicapindex.';
     if (c.slope == null || c.cr == null || c.par == null) return 'Slope eller CR saknas för teen, så banahandicap kan inte räknas ut.';
-    var ch = Math.round(idx * c.slope / 113 + (c.cr - c.par));
+    var ch = roundCourseHcp(p);
     return 'Banahandicap <strong>' + ch + '</strong> · tee ' + escapeHtml(c.tee) + ' (CR ' + c.cr + ' / Slope ' + c.slope + ')';
   }
 
@@ -1515,6 +1645,114 @@
     document.querySelectorAll('.round-count-btn').forEach(function(b){
       b.classList.toggle('active', parseInt(b.dataset.roundCount, 10) === round.count);
     });
+    buildRoundCard();
+  }
+
+  // Scorekortet: ett hål per rad och en kolumn per spelare, så att hela rundan syns i mobilen.
+  function buildRoundCard(){
+    var wrap = document.getElementById('round-card');
+    var holes = roundHoles('H');
+    if (!holes.length){ wrap.innerHTML = ''; return; }
+    var n = holes.length;
+    var laps = roundLaps();
+    var count = round.count;
+    var parSum = function(from, to){ return holes.slice(from, to).reduce(function(s, h){ return s + h.par; }, 0); };
+
+    var cols = '<colgroup><col class="rc-col-hole"><col class="rc-col-par"><col class="rc-col-idx">';
+    var head = '<tr><th>Hål</th><th>Par</th><th>Idx</th>';
+    for (var i = 0; i < count; i++){
+      cols += '<col>';
+      head += '<th class="rc-player-head"><span class="rc-name" id="rc-name-' + i + '"></span><span class="rc-ch" id="rc-ch-' + i + '"></span></th>';
+    }
+    cols += '</colgroup>';
+    head += '</tr>';
+
+    function sumRow(label, key, par){
+      var r = '<tr class="rc-sum-row"><td class="rc-hole">' + label + '</td><td>' + par + '</td><td></td>';
+      for (var i = 0; i < count; i++) r += '<td id="rc-' + key + '-' + i + '">–</td>';
+      return r + '</tr>';
+    }
+    function playerRow(cls, label, key){
+      var r = '<tr class="' + cls + '"><td class="rc-label" colspan="3">' + label + '</td>';
+      for (var i = 0; i < count; i++) r += '<td id="rc-' + key + '-' + i + '">–</td>';
+      return r + '</tr>';
+    }
+
+    var body = '';
+    holes.forEach(function(h, hi){
+      if (n > 9 && hi === 9) body += sumRow(laps === 2 ? 'Varv 1' : 'Ut', 'out', parSum(0, 9));
+      var holeLabel = String(hi + 1);
+      if (laps === 2 && hi >= 9) holeLabel += '<span class="rc-hole-lap">hål ' + (hi - 8) + '</span>';
+      body += '<tr><td class="rc-hole">' + holeLabel + '</td><td>' + h.par + '</td><td class="rc-idx">' + h.index + '</td>';
+      for (var i = 0; i < count; i++){
+        body += '<td class="rc-cell"><span class="rc-dots" id="rc-dots-' + i + '-' + hi + '"></span>' +
+          '<input type="number" class="rc-input" id="rc-s-' + i + '-' + hi + '" data-p="' + i + '" data-h="' + hi + '"' +
+          ' min="1" step="1" inputmode="numeric" enterkeyhint="next" aria-label="Slag hål ' + (hi + 1) + ' spelare ' + (i + 1) + '"></td>';
+      }
+      body += '</tr>';
+    });
+    if (n > 9) body += sumRow(laps === 2 ? 'Varv 2' : 'In', 'in', parSum(9, n));
+    body += sumRow('Tot', 'tot', parSum(0, n));
+    body += playerRow('rc-diff-row', 'Brutto +/−', 'diff');
+    body += playerRow('rc-net-row', 'Netto', 'net');
+    body += playerRow('rc-diff-row', 'Netto +/−', 'netdiff');
+
+    var note = 'Skriv in slagen hål för hål. Prickarna i rutan visar spelarens hcp-slag på hålet.';
+    if (laps === 2) note += ' Banan spelas två varv; varv 2 har index +1 (jämna index).';
+
+    wrap.innerHTML =
+      '<h2 class="leaderboard-title">Scorekort</h2>' +
+      '<p class="guide-note">' + note + '</p>' +
+      '<table class="round-card-table">' + cols + '<thead>' + head + '</thead><tbody>' + body + '</tbody></table>' +
+      '<div class="round-card-actions"><button type="button" class="rc-clear-btn" id="rc-clear-btn">Rensa alla slag</button></div>';
+    updateRoundCard();
+  }
+
+  function updateRoundCard(){
+    if (!document.getElementById('rc-s-0-0')) return;
+    for (var i = 0; i < round.count; i++){
+      var p = round.players[i];
+      var holes = roundHoles(p.gender);
+      var ch = roundCourseHcp(p);
+      var scores = round.scores[i];
+      setCell('rc-name-' + i, p.name.trim() || 'S' + (i + 1));
+      setCell('rc-ch-' + i, ch == null ? 'hcp –' : 'hcp ' + ch);
+
+      var t = { out: [0, 0], in: [0, 0], tot: [0, 0] };  // [slag, antal hål]
+      var parPlayed = 0, strokesPlayed = 0;
+      holes.forEach(function(h, hi){
+        var strokes = ch == null ? null : strokesForHole(ch, h.index);
+        setCell('rc-dots-' + i + '-' + hi, !strokes ? '' : new Array(Math.abs(strokes) + 1).join(strokes > 0 ? '•' : '+'));
+        var val = parseInt(scores[hi], 10);
+        var has = !isNaN(val) && val > 0;
+        var input = document.getElementById('rc-s-' + i + '-' + hi);
+        if (input !== document.activeElement) input.value = has ? val : '';
+        applyScoreMark(input, has ? val : null, h.par);
+        if (!has) return;
+        var half = hi < 9 ? t.out : t.in;
+        half[0] += val; half[1]++;
+        t.tot[0] += val; t.tot[1]++;
+        parPlayed += h.par;
+        if (strokes != null) strokesPlayed += strokes;
+      });
+
+      setCell('rc-out-' + i, t.out[1] ? t.out[0] : '–');
+      setCell('rc-in-' + i, t.in[1] ? t.in[0] : '–');
+      setCell('rc-tot-' + i, t.tot[1] ? t.tot[0] : '–');
+      setCell('rc-diff-' + i, t.tot[1] ? diffText(t.tot[0] - parPlayed) : '–');
+      var netOk = t.tot[1] && ch != null;
+      setCell('rc-net-' + i, netOk ? t.tot[0] - strokesPlayed : '–');
+      setCell('rc-netdiff-' + i, netOk ? diffText(t.tot[0] - strokesPlayed - parPlayed) : '–');
+    }
+  }
+
+  function handleRoundScore(target){
+    var i = parseInt(target.dataset.p, 10);
+    var hi = parseInt(target.dataset.h, 10);
+    var v = target.value.trim();
+    round.scores[i][hi] = /^\d{1,2}$/.test(v) && parseInt(v, 10) > 0 ? v : '';
+    saveRound();
+    updateRoundCard();
   }
 
   function handleRoundField(target){
@@ -1525,6 +1763,7 @@
     p[field] = target.value;
     document.getElementById('round-readout-' + (i + 1)).innerHTML = roundReadout(p);
     saveRound();
+    updateRoundCard();
   }
 
   function handleRoundClick(e){
@@ -1541,6 +1780,14 @@
       round.players[i].gender = genderBtn.dataset.gender;
       renderRoundPlayers();
       saveRound();
+      return true;
+    }
+    if (e.target.closest('#rc-clear-btn')){
+      if (roundHasScores() && window.confirm('Rensa alla inskrivna slag för rundan?')){
+        round.scores = [[], [], [], []];
+        saveRound();
+        updateRoundCard();
+      }
       return true;
     }
     return false;
@@ -1663,6 +1910,13 @@
 
   document.addEventListener('change', function(e){
     if (e.target.id === 'round-bana-select'){
+      if (roundHasScores()){
+        if (!window.confirm('Byter du bana rensas de slag som redan är inskrivna. Fortsätta?')){
+          e.target.value = round.bana;
+          return;
+        }
+        round.scores = [[], [], [], []];
+      }
       round.bana = e.target.value;
       renderRoundPlayers();
       saveRound();
@@ -1705,6 +1959,10 @@
       handleRoundField(e.target);
       return;
     }
+    if (e.target.classList && e.target.classList.contains('rc-input')){
+      handleRoundScore(e.target);
+      return;
+    }
     if (e.target.classList && e.target.classList.contains('sc-score-input')){
       var holeInput = document.getElementById('guide-score-' + e.target.dataset.hole);
       if (holeInput) holeInput.value = e.target.value;
@@ -1717,6 +1975,15 @@
       return;
     }
     if (e.target.tagName === 'INPUT') renderAll();
+  });
+
+  // Enter/"Nästa" i scorekortet hoppar till nästa ruta (nästa spelare, sedan nästa hål).
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Enter' || !e.target.classList || !e.target.classList.contains('rc-input')) return;
+    e.preventDefault();
+    var all = Array.from(document.querySelectorAll('.rc-input'));
+    var next = all[all.indexOf(e.target) + 1];
+    if (next) next.focus(); else e.target.blur();
   });
 
   loadCourses();
