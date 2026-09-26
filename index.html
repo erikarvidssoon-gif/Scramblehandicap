@@ -186,7 +186,7 @@
 
   .player{ display:flex; flex-direction:column; gap:10px; min-width:0; }
   .player[hidden]{ display:none; }
-  .player .badge{
+  .player .badge, .round-player .badge{
     align-self:flex-start;
     font-size:0.72rem;
     letter-spacing:0.08em;
@@ -227,6 +227,22 @@
   }
   .advanced-grid label{ font-size:0.72rem; min-width:0; }
   .advanced-grid input{ padding:7px 8px; font-size:0.9rem; }
+
+  .gender-toggle{
+    align-self:flex-start;
+    display:inline-flex; gap:2px; padding:3px;
+    border:1px solid var(--line); border-radius:999px;
+    background:var(--surface);
+  }
+  .gender-btn{
+    font:inherit; font-size:0.8rem; font-weight:700;
+    border:none; background:transparent; color:var(--ink-600);
+    padding:6px 14px; border-radius:999px; cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+  .gender-btn:hover{ color:var(--ink-900); }
+  .gender-btn.active{ background:var(--green-600); color:var(--on-accent); }
+  .gender-btn:focus-visible{ outline:2px solid var(--green-500); outline-offset:2px; }
 
   .course-picker{ display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
   .course-columns{ display:flex; gap:6px; flex:1; min-width:0; flex-wrap:wrap; }
@@ -359,10 +375,37 @@
     tr.winner-row td{ background:transparent; }
   }
 
-  .guide-toggle-row{ display:flex; justify-content:flex-start; }
+  .guide-toggle-row{ display:flex; justify-content:flex-start; gap:10px; flex-wrap:wrap; }
+
+  .round-section{ display:flex; flex-direction:column; gap:12px; }
+  .round-section .player-count-row{ margin-bottom:0; }
+  .round-select{
+    font:inherit; font-size:0.9rem;
+    width:100%; min-width:0;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--ink-900);
+  }
+  .round-players{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:520px){ .round-players{ grid-template-columns:1fr; } }
+  .round-player{
+    display:flex; flex-direction:column; gap:10px;
+    min-width:0;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px;
+    background:var(--bg);
+  }
+  .round-player-row{ display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+  .round-player-row label{ flex:1 1 90px; min-width:0; }
+  .round-hcp-readout{ font-size:0.88rem; color:var(--ink-600); line-height:1.4; }
+  .round-hcp-readout strong{ color:var(--gold-600); font-size:1.05rem; }
   .guide-section{ display:flex; flex-direction:column; gap:12px; }
   .guide-picker-row{ display:flex; gap:14px; flex-wrap:wrap; }
   .guide-picker-row label{ flex:1 1 160px; min-width:0; }
+  .guide-gender{ display:flex; flex-direction:column; gap:6px; }
   #guide-handicap-input{ max-width:160px; }
   .guide-summary{
     font-size:1rem;
@@ -493,7 +536,7 @@
 
   /* iOS Safari zoomar in vid fokus på fält under 16px. */
   @media (pointer:coarse){
-    .advanced-grid input, .course-bana-select, .course-tee-select{ font-size:16px; }
+    .advanced-grid input, .course-bana-select, .course-tee-select, .round-select{ font-size:16px; }
   }
 </style>
 
@@ -514,6 +557,25 @@
 
   <div class="guide-toggle-row">
     <button type="button" id="toggle-guide-btn" class="add-team-btn">🏌️ Visa banguide</button>
+    <button type="button" id="toggle-round-btn" class="add-team-btn">📝 Scorekort för rundan</button>
+  </div>
+
+  <div class="card round-section" id="round-section" hidden>
+    <h2 class="leaderboard-title">Runda</h2>
+    <p class="leaderboard-hint">Registrera spelarna innan ni går ut. Allt sparas i telefonen medan du fyller i.</p>
+    <label>Välj bana
+      <select id="round-bana-select" class="round-select"></select>
+    </label>
+    <div class="player-count-row">
+      <span class="count-label">Antal spelare</span>
+      <div class="count-toggle" role="group" aria-label="Antal spelare i rundan">
+        <button type="button" class="count-btn round-count-btn" data-round-count="1">1</button>
+        <button type="button" class="count-btn round-count-btn" data-round-count="2">2</button>
+        <button type="button" class="count-btn round-count-btn" data-round-count="3">3</button>
+        <button type="button" class="count-btn round-count-btn" data-round-count="4">4</button>
+      </div>
+    </div>
+    <div class="round-players" id="round-players"></div>
   </div>
 
   <div class="card guide-section" id="guide-section" hidden>
@@ -526,6 +588,13 @@
       <label>Ditt banahandicap (valfritt)
         <input type="number" id="guide-handicap-input" step="1" min="0" max="54" inputmode="numeric" placeholder="t.ex. 18">
       </label>
+      <div class="guide-gender" id="guide-gender" hidden>
+        <span class="count-label">Spelar från</span>
+        <div class="gender-toggle" role="group" aria-label="Spelar från">
+          <button type="button" class="gender-btn guide-gender-btn active" data-gender="H" aria-pressed="true">Herrtee</button>
+          <button type="button" class="gender-btn guide-gender-btn" data-gender="D" aria-pressed="false">Damtee</button>
+        </div>
+      </div>
     </div>
     <div class="guide-content" id="guide-content"></div>
   </div>
@@ -563,7 +632,7 @@
     har handicap index, slope och course rating (CR) — banahandicap räknas då som
     <strong>index × slope / 113 + (CR − par)</strong>, avrundat till närmaste heltal. I resultattabellen räknas
     <strong>netto = brutto − lagets handicap</strong>, och lag med lägst netto vinner. Bansväljaren innehåller
-    golfbanor i Uppsala län samt fem kända Stockholmsklubbar (sammanställt från klubbarnas scorekort, hämtat
+    golfbanor i Uppsala län, fem kända Stockholmsklubbar och Umeå GK (sammanställt från klubbarnas scorekort, hämtat
     september 2026) — "?" betyder att uppgiften inte gick att verifiera. Kontrollera alltid mot klubbens
     officiella scorekort inför en tävling.
   </p>
@@ -591,7 +660,7 @@
   // Inbyggd bansdatabas: golfbanor i Uppsala län + fem kända Stockholmsklubbar.
   // [bana, ort, tee, kön ("H"/"D"), slope, CR, par] — null där uppgiften inte gick att verifiera.
   // Källa: klubbarnas scorekort + 1golf.eu/GolfPass (sammanställt av användaren, hämtat sep 2026).
-  var PRESET_RAW = [["Upsala GK - Stora (18 hål)","Uppsala","62","H",140,74.5,72],["Upsala GK - Stora (18 hål)","Uppsala","59","H",130,72.5,72],["Upsala GK - Stora (18 hål)","Uppsala","56","H",128,71.3,72],["Upsala GK - Stora (18 hål)","Uppsala","51","H",123,69.5,72],["Upsala GK - Stora (18 hål)","Uppsala","51","D",138,73.8,72],["Upsala GK - Stora (18 hål)","Uppsala","47","H",119,65.5,72],["Upsala GK - Stora (18 hål)","Uppsala","47","D",130,71.3,72],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Vit","H",null,68.0,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Svart","D",null,73.2,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","H",null,66.9,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","D",null,72.3,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","H",null,63.5,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","D",null,67.8,70],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Gul","H",null,58.1,62],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Röd","D",null,57.8,62],["GolfUppsala Söderby (18 hål)","Uppsala","67","H",135,74.0,73],["GolfUppsala Söderby (18 hål)","Uppsala","64","H",133,73.3,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","H",125,70.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","D",139,76.5,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","H",119,67.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","D",128,73.8,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","H",110,64.9,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","D",123,70.1,73],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","H",93,59.1,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","D",98,60.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","H",91,58.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","D",95,59.4,30],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Vit","H",137,73.0,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","H",131,71.8,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","D",137,76.6,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","H",128,68.3,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","D",130,73.7,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","H",122,65.9,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","D",124,70.7,72],["Grönlund GK (18 hål)","Uppsala (Almunge)","Vit","H",125,71.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","H",123,69.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","H",117,67.3,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","D",131,75.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","D",126,73.0,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","H",109,64.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","D",115,69.6,71],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Vit","H",134,72.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Gul","H",127,70.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Blå","H",120,68.2,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Röd","H",112,64.9,null],["Vassunda GK (18 hål)","Knivsta","Vit","H",133,73.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","H",129,71.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","D",134,77.2,72],["Vassunda GK (18 hål)","Knivsta","Blå","H",124,69.0,72],["Vassunda GK (18 hål)","Knivsta","Blå","D",129,74.4,72],["Vassunda GK (18 hål)","Knivsta","Röd","H",121,67.1,72],["Vassunda GK (18 hål)","Knivsta","Röd","D",124,72.0,72],["Enköpings GK (18 hål)","Enköping","Gul","H",121,69.4,71],["Enköpings GK (18 hål)","Enköping","Gul","D",133,75.3,71],["Enköpings GK (18 hål)","Enköping","Blå","H",119,67.3,71],["Enköpings GK (18 hål)","Enköping","Röd","H",114,65.0,71],["Enköpings GK (18 hål)","Enköping","Röd","D",122,70.1,71],["Enköpings GK (18 hål)","Enköping","Blå","D",126,72.7,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","H",116,67.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","D",126,73.0,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","H",121,69.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","D",131,75.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","H",111,65.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","D",120,70.2,71],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","H",122,67.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","D",126,73.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Orange","D",112,66.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","H",126,69.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","D",131,75.7,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","H",119,65.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","D",121,70.9,70],["Örbyhus GK (18 hål)","Tierp","Vit","H",148,76.0,72],["Örbyhus GK (18 hål)","Tierp","Gul","H",142,73.2,72],["Örbyhus GK (18 hål)","Tierp","Gul","D",143,79.5,72],["Örbyhus GK (18 hål)","Tierp","Blå","H",138,71.2,72],["Örbyhus GK (18 hål)","Tierp","Blå","D",138,77.0,72],["Örbyhus GK (18 hål)","Tierp","Röd","H",133,68.5,72],["Örbyhus GK (18 hål)","Tierp","Röd","D",131,73.8,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Vit","H",131,72.9,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","H",128,71.1,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","D",135,77.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","H",123,69.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","D",129,74.5,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","H",115,65.2,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","D",119,69.8,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","H",137,72.6,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","D",139,80.5,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","H",128,67.9,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","D",127,74.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 56 (motsv. Vit)","H",131,70.2,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","H",130,69.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","D",136,75.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","H",125,67.4,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","D",130,72.9,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","H",122,65.7,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","D",126,70.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 38 (Orange, dam)","D",114,65.6,72],["Stockholms GK - Kevinge (18 hål)","Danderyd","Vit","H",129,69.9,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","H",126,68.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","D",136,74.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","H",122,66.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","D",131,71.8,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","H",119,65.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","D",126,70.0,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Svart","H",120,67.4,69],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee I","H",139,74.1,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","H",135,71.6,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","D",142,78.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","H",131,70.0,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","D",138,76.3,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","H",126,66.9,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","D",132,73.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee V","D",121,68.1,72],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Vit","H",136,71.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","H",132,70.4,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","D",133,76.0,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","H",129,68.5,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","D",128,73.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","H",126,66.9,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","D",123,71.8,71],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","H",109,64.3,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","D",120,68.8,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","H",105,62.7,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","D",113,65.7,68],["Ullna Golf Club (18 hål)","Åkersberga","Vit","H",143,73.8,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","H",143,71.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","D",139,78.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","H",138,69.0,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","D",137,75.6,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","H",115,64.5,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","D",132,69.8,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Svart","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72]];
+  var PRESET_RAW = [["Upsala GK - Stora (18 hål)","Uppsala","62","H",140,74.5,72],["Upsala GK - Stora (18 hål)","Uppsala","59","H",130,72.5,72],["Upsala GK - Stora (18 hål)","Uppsala","56","H",128,71.3,72],["Upsala GK - Stora (18 hål)","Uppsala","51","H",123,69.5,72],["Upsala GK - Stora (18 hål)","Uppsala","51","D",138,73.8,72],["Upsala GK - Stora (18 hål)","Uppsala","47","H",119,65.5,72],["Upsala GK - Stora (18 hål)","Uppsala","47","D",130,71.3,72],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Vit","H",null,68.0,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Svart","D",null,73.2,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","H",null,66.9,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","D",null,72.3,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","H",null,63.5,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","D",null,67.8,70],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Gul","H",null,58.1,62],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Röd","D",null,57.8,62],["GolfUppsala Söderby (18 hål)","Uppsala","67","H",135,74.0,73],["GolfUppsala Söderby (18 hål)","Uppsala","64","H",133,73.3,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","H",125,70.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","D",139,76.5,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","H",119,67.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","D",128,73.8,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","H",110,64.9,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","D",123,70.1,73],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","H",93,59.1,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","D",98,60.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","H",91,58.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","D",95,59.4,30],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Vit","H",137,73.0,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","H",131,71.8,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","D",137,76.6,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","H",128,68.3,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","D",130,73.7,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","H",122,65.9,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","D",124,70.7,72],["Grönlund GK (18 hål)","Uppsala (Almunge)","Vit","H",125,71.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","H",123,69.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","H",117,67.3,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","D",131,75.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","D",126,73.0,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","H",109,64.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","D",115,69.6,71],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Vit","H",134,72.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Gul","H",127,70.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Blå","H",120,68.2,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Röd","H",112,64.9,null],["Vassunda GK (18 hål)","Knivsta","Vit","H",133,73.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","H",129,71.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","D",134,77.2,72],["Vassunda GK (18 hål)","Knivsta","Blå","H",124,69.0,72],["Vassunda GK (18 hål)","Knivsta","Blå","D",129,74.4,72],["Vassunda GK (18 hål)","Knivsta","Röd","H",121,67.1,72],["Vassunda GK (18 hål)","Knivsta","Röd","D",124,72.0,72],["Enköpings GK (18 hål)","Enköping","Gul","H",121,69.4,71],["Enköpings GK (18 hål)","Enköping","Gul","D",133,75.3,71],["Enköpings GK (18 hål)","Enköping","Blå","H",119,67.3,71],["Enköpings GK (18 hål)","Enköping","Röd","H",114,65.0,71],["Enköpings GK (18 hål)","Enköping","Röd","D",122,70.1,71],["Enköpings GK (18 hål)","Enköping","Blå","D",126,72.7,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","H",116,67.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","D",126,73.0,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","H",121,69.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","D",131,75.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","H",111,65.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","D",120,70.2,71],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","H",122,67.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","D",126,73.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Orange","D",112,66.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","H",126,69.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","D",131,75.7,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","H",119,65.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","D",121,70.9,70],["Örbyhus GK (18 hål)","Tierp","Vit","H",148,76.0,72],["Örbyhus GK (18 hål)","Tierp","Gul","H",142,73.2,72],["Örbyhus GK (18 hål)","Tierp","Gul","D",143,79.5,72],["Örbyhus GK (18 hål)","Tierp","Blå","H",138,71.2,72],["Örbyhus GK (18 hål)","Tierp","Blå","D",138,77.0,72],["Örbyhus GK (18 hål)","Tierp","Röd","H",133,68.5,72],["Örbyhus GK (18 hål)","Tierp","Röd","D",131,73.8,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Vit","H",131,72.9,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","H",128,71.1,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","D",135,77.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","H",123,69.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","D",129,74.5,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","H",115,65.2,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","D",119,69.8,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","H",137,72.6,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","D",139,80.5,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","H",128,67.9,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","D",127,74.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 56 (motsv. Vit)","H",131,70.2,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","H",130,69.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","D",136,75.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","H",125,67.4,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","D",130,72.9,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","H",122,65.7,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","D",126,70.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 38 (Orange, dam)","D",114,65.6,72],["Stockholms GK - Kevinge (18 hål)","Danderyd","Vit","H",129,69.9,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","H",126,68.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","D",136,74.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","H",122,66.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","D",131,71.8,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","H",119,65.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","D",126,70.0,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Svart","H",120,67.4,69],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee I","H",139,74.1,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","H",135,71.6,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","D",142,78.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","H",131,70.0,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","D",138,76.3,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","H",126,66.9,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","D",132,73.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee V","D",121,68.1,72],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Vit","H",136,71.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","H",132,70.4,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","D",133,76.0,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","H",129,68.5,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","D",128,73.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","H",126,66.9,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","D",123,71.8,71],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","H",109,64.3,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","D",120,68.8,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","H",105,62.7,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","D",113,65.7,68],["Ullna Golf Club (18 hål)","Åkersberga","Vit","H",143,73.8,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","H",143,71.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","D",139,78.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","H",138,69.0,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","D",137,75.6,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","H",115,64.5,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","D",132,69.8,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Svart","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Umeå GK (9 hål)","Umeå","Gul","H",124,69.3,72],["Umeå GK (9 hål)","Umeå","Röd","D",121,70.1,72]];
   var PRESET_COURSES = PRESET_RAW.map(function(r){
     return { bana: r[0], ort: r[1], tee: r[2], kon: r[3], slope: r[4], cr: r[5], par: r[6] };
   });
@@ -695,6 +764,23 @@
         {par:5, index:4,  length:478},
         {par:4, index:10, length:316}
       ]
+    },
+    // Gul/röd var omkastade i källarket på hål 3, 4, 5, 6 och 9; rättat mot hålbilderna (röd tee ligger närmast).
+    "Umeå GK (9 hål)": {
+      refTee: "Gul",
+      refTeeD: "Röd",
+      imageSlug: "umea",
+      holes: [
+        {par:5, index:15, length:395, lengthD:339},
+        {par:4, index:11, length:329, lengthD:286},
+        {par:3, index:13, length:120, lengthD:98},
+        {par:4, index:3,  length:329, lengthD:295},
+        {par:5, index:5,  length:431, lengthD:367},
+        {par:3, index:7,  length:122, lengthD:106},
+        {par:4, index:1,  length:385, lengthD:325},
+        {par:5, index:9,  length:490, lengthD:410},
+        {par:3, index:17, length:113, lengthD:97}
+      ]
     }
   };
 
@@ -736,7 +822,9 @@
     return opts;
   }
 
-  function teeOptionsHtml(banaValue, selectedTeeValue){
+  var playerGender = {};
+
+  function teeOptionsHtml(banaValue, selectedTeeValue, gender){
     if (!banaValue) return '<option value="">— Välj bana först —</option>';
 
     if (banaValue === 'own'){
@@ -751,19 +839,22 @@
 
     var idx = parseInt(banaValue.slice(1), 10);
     var banaName = BANA_LIST[idx] ? BANA_LIST[idx].bana : null;
-    var opts2 = '<option value="">— Välj tee —</option>';
+    var opts2 = '';
     PRESET_COURSES.forEach(function(c, i){
       if (c.bana !== banaName) return;
+      if (gender && c.kon !== gender) return;
       var val = 'p' + i;
       opts2 += '<option value="' + val + '"' + (val === selectedTeeValue ? ' selected' : '') + '>' +
         escapeHtml(presetOptionLabel(c)) + '</option>';
     });
-    return opts2;
+    if (!opts2) return '<option value="">(inga ' + (gender === 'D' ? 'damtees' : 'herrtees') + ' för banan)</option>';
+    return '<option value="">— Välj tee —</option>' + opts2;
   }
 
   function refreshCourseSelects(setBanaValue, setTeeValue, setTarget){
     document.querySelectorAll('.course-bana-select').forEach(function(banaSel){
       var target = banaSel.dataset.target;
+      if (!target) return;
       var isSetTarget = (setTarget && target === setTarget);
       var newBanaVal = isSetTarget ? setBanaValue : banaSel.value;
       banaSel.innerHTML = banaOptionsHtml(newBanaVal);
@@ -772,7 +863,7 @@
       var teeSel = document.getElementById('course-tee-' + target);
       if (teeSel){
         var newTeeVal = isSetTarget ? setTeeValue : teeSel.value;
-        teeSel.innerHTML = teeOptionsHtml(banaSel.value, newTeeVal);
+        teeSel.innerHTML = teeOptionsHtml(banaSel.value, newTeeVal, playerGender[target]);
         teeSel.value = newTeeVal || '';
         teeSel.disabled = !banaSel.value;
       }
@@ -788,6 +879,19 @@
   }
 
   var currentGuideBana = null;
+  var currentGuideGender = 'H';
+
+  // Par/index/längd för vald tee. Damvärden används bara om banan har damdata (refTeeD).
+  function guideHoles(data){
+    var dam = currentGuideGender === 'D' && data.refTeeD;
+    return data.holes.map(function(h){
+      return {
+        par: dam && h.parD != null ? h.parD : h.par,
+        index: dam && h.indexD != null ? h.indexD : h.index,
+        length: dam ? h.lengthD : h.length
+      };
+    });
+  }
 
   function scorecardBlockHtml(data, startIdx, endIdx, label, idSuffix, includeTotal){
     var headerHtml = '<th>Hål</th>';
@@ -856,15 +960,22 @@
     var contentEl = document.getElementById('guide-content');
     var data = HOLE_DATA[banaName];
     currentGuideBana = data ? banaName : null;
+    document.getElementById('guide-gender').hidden = !(data && data.refTeeD);
     if (!data){ contentEl.innerHTML = ''; return; }
 
-    var totalPar = data.holes.reduce(function(s, h){ return s + h.par; }, 0);
-    var html = '<p class="guide-note">Längd uppmätt från tee <strong>' + escapeHtml(data.refTee) +
-      '</strong> — samma par och index gäller normalt oavsett vald tee. Totalt par: ' + totalPar + '.</p>' +
+    var holes = guideHoles(data);
+    var view = { holes: holes };
+    var totalPar = holes.reduce(function(s, h){ return s + h.par; }, 0);
+    var teeNote = data.refTeeD
+      ? 'Visar <strong>' + (currentGuideGender === 'D' ? 'damtee ' + escapeHtml(data.refTeeD) : 'herrtee ' + escapeHtml(data.refTee)) +
+        '</strong>. Totalt par: ' + totalPar + '.'
+      : 'Längd uppmätt från tee <strong>' + escapeHtml(data.refTee) +
+        '</strong> — samma par och index gäller normalt oavsett vald tee. Totalt par: ' + totalPar + '.';
+    var html = '<p class="guide-note">' + teeNote + '</p>' +
       '<p class="guide-summary" id="guide-summary">Fyll i score per hål för att se sammanlagt resultat.</p>' +
-      scorecardHtml(data);
+      scorecardHtml(view);
 
-    data.holes.forEach(function(h, i){
+    holes.forEach(function(h, i){
       var holeNum = i + 1;
       var img = 'images/' + data.imageSlug + '_hal' + holeNum + '.png';
       html +=
@@ -929,12 +1040,13 @@
     var handicap = hcpInput ? parseInt(hcpInput.value, 10) : NaN;
     if (isNaN(handicap)) handicap = null;
 
-    var n = data.holes.length;
+    var holes = guideHoles(data);
+    var n = holes.length;
     var totalScore = 0, totalParSoFar = 0, holesEntered = 0, totalStrokes = 0;
     var outScore = 0, outPar = 0, outEntered = 0, outStrokes = 0;
     var inScore = 0, inPar = 0, inEntered = 0, inStrokes = 0;
 
-    data.holes.forEach(function(h, i){
+    holes.forEach(function(h, i){
       var holeNum = i + 1;
       var input = document.getElementById('guide-score-' + holeNum);
       var diffEl = document.getElementById('guide-diff-' + holeNum);
@@ -1054,6 +1166,10 @@
         '<label>Handicap index<input type="number" id="hcp-' + t + '-' + p + '" step="0.1" inputmode="decimal" placeholder="t.ex. 14.2"></label>' +
         '<label class="advanced-toggle"><input type="checkbox" class="adv-toggle" data-target="adv-' + t + '-' + p + '"> Beräkna banahandicap</label>' +
         '<div class="advanced-fields" id="adv-' + t + '-' + p + '" hidden>' +
+          '<div class="gender-toggle" role="group" aria-label="Visa tees för">' +
+            '<button type="button" class="gender-btn" data-target="' + t + '-' + p + '" data-gender="H" aria-pressed="false">Herr</button>' +
+            '<button type="button" class="gender-btn" data-target="' + t + '-' + p + '" data-gender="D" aria-pressed="false">Dam</button>' +
+          '</div>' +
           '<div class="course-picker">' +
             '<div class="course-columns">' +
               '<select class="course-bana-select" id="course-bana-' + t + '-' + p + '" data-target="' + t + '-' + p + '">' +
@@ -1302,12 +1418,179 @@
     updateLeaderboard(hcpMap);
   }
 
+  // ---- Runda: registrering av 1–4 spelare (namn, hcp-index, kön, tee) ----
+  var ROUND_KEY = 'scramble-round';
+  var round = { bana: '', count: 1, players: [] };
+  for (var rp = 0; rp < 4; rp++) round.players.push({ name: '', hcp: '', gender: 'H', tee: '' });
+
+  function loadRound(){
+    try {
+      var s = JSON.parse(localStorage.getItem(ROUND_KEY) || 'null');
+      if (!s) return;
+      round.bana = HOLE_DATA[s.bana] ? s.bana : '';
+      round.count = Math.min(4, Math.max(1, parseInt(s.count, 10) || 1));
+      (s.players || []).slice(0, 4).forEach(function(p, i){
+        round.players[i] = {
+          name: p.name || '',
+          hcp: p.hcp == null ? '' : String(p.hcp),
+          gender: p.gender === 'D' ? 'D' : 'H',
+          tee: p.tee || ''
+        };
+      });
+    } catch(e){}
+  }
+
+  function saveRound(){
+    try { localStorage.setItem(ROUND_KEY, JSON.stringify(round)); } catch(e){}
+  }
+
+  function roundTees(p){
+    return PRESET_COURSES.filter(function(c){ return c.bana === round.bana && c.kon === p.gender; });
+  }
+
+  // Finns bara en tee för spelarens kön väljs den automatiskt; ogiltiga val rensas.
+  function normalizeRoundTee(p){
+    var tees = roundTees(p);
+    if (!tees.some(function(c){ return c.tee === p.tee; })) p.tee = tees.length === 1 ? tees[0].tee : '';
+  }
+
+  function roundTeeOptionsHtml(p){
+    if (!round.bana) return '<option value="">— Välj bana först —</option>';
+    var tees = roundTees(p);
+    if (!tees.length) return '<option value="">(inga ' + (p.gender === 'D' ? 'damtees' : 'herrtees') + ' för banan)</option>';
+    var opts = tees.length > 1 ? '<option value="">— Välj tee —</option>' : '';
+    tees.forEach(function(c){
+      opts += '<option value="' + escapeHtml(c.tee) + '"' + (c.tee === p.tee ? ' selected' : '') + '>' + escapeHtml(c.tee) + '</option>';
+    });
+    return opts;
+  }
+
+  function roundReadout(p){
+    if (!round.bana) return 'Välj bana för att räkna ut banahandicap.';
+    var c = PRESET_COURSES.find(function(x){ return x.bana === round.bana && x.kon === p.gender && x.tee === p.tee; });
+    if (!c) return roundTees(p).length ? 'Välj tee.' : 'Banan saknar ' + (p.gender === 'D' ? 'damtee' : 'herrtee') + ' i databasen.';
+    var idx = parseFloat(String(p.hcp).replace(',', '.'));
+    if (isNaN(idx)) return 'Fyll i handicapindex.';
+    if (c.slope == null || c.cr == null || c.par == null) return 'Slope eller CR saknas för teen, så banahandicap kan inte räknas ut.';
+    var ch = Math.round(idx * c.slope / 113 + (c.cr - c.par));
+    return 'Banahandicap <strong>' + ch + '</strong> · tee ' + escapeHtml(c.tee) + ' (CR ' + c.cr + ' / Slope ' + c.slope + ')';
+  }
+
+  function roundPlayerHtml(i){
+    var n = i + 1;
+    return '<div class="round-player" data-rp="' + i + '">' +
+      '<span class="badge">Spelare ' + n + '</span>' +
+      '<label>Namn<input type="text" data-field="name" id="round-name-' + n + '" placeholder="Spelare ' + n + '" autocomplete="off"></label>' +
+      '<div class="round-player-row">' +
+        '<label>Hcp-index<input type="number" data-field="hcp" id="round-hcp-' + n + '" step="0.1" inputmode="decimal" placeholder="t.ex. 18.4"></label>' +
+        '<div class="gender-toggle" role="group" aria-label="Kön spelare ' + n + '">' +
+          '<button type="button" class="gender-btn round-gender-btn" data-gender="H">Herr</button>' +
+          '<button type="button" class="gender-btn round-gender-btn" data-gender="D">Dam</button>' +
+        '</div>' +
+      '</div>' +
+      '<label>Tee<select class="round-select" data-field="tee" id="round-tee-' + n + '"></select></label>' +
+      '<p class="round-hcp-readout" id="round-readout-' + n + '"></p>' +
+    '</div>';
+  }
+
+  function renderRoundPlayers(){
+    round.players.forEach(function(p, i){
+      var n = i + 1;
+      var el = document.querySelector('.round-player[data-rp="' + i + '"]');
+      el.hidden = i >= round.count;
+      normalizeRoundTee(p);
+      document.getElementById('round-name-' + n).value = p.name;
+      document.getElementById('round-hcp-' + n).value = p.hcp;
+      el.querySelectorAll('.round-gender-btn').forEach(function(b){
+        var on = b.dataset.gender === p.gender;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      var teeSel = document.getElementById('round-tee-' + n);
+      teeSel.innerHTML = roundTeeOptionsHtml(p);
+      teeSel.value = p.tee;
+      teeSel.disabled = !round.bana || !roundTees(p).length;
+      document.getElementById('round-readout-' + n).innerHTML = roundReadout(p);
+    });
+    document.querySelectorAll('.round-count-btn').forEach(function(b){
+      b.classList.toggle('active', parseInt(b.dataset.roundCount, 10) === round.count);
+    });
+  }
+
+  function handleRoundField(target){
+    var field = target.dataset.field;
+    if (!field) return;
+    var i = parseInt(target.closest('.round-player').dataset.rp, 10);
+    var p = round.players[i];
+    p[field] = target.value;
+    document.getElementById('round-readout-' + (i + 1)).innerHTML = roundReadout(p);
+    saveRound();
+  }
+
+  function handleRoundClick(e){
+    var countBtn = e.target.closest('.round-count-btn');
+    if (countBtn){
+      round.count = parseInt(countBtn.dataset.roundCount, 10);
+      renderRoundPlayers();
+      saveRound();
+      return true;
+    }
+    var genderBtn = e.target.closest('.round-gender-btn');
+    if (genderBtn){
+      var i = parseInt(genderBtn.closest('.round-player').dataset.rp, 10);
+      round.players[i].gender = genderBtn.dataset.gender;
+      renderRoundPlayers();
+      saveRound();
+      return true;
+    }
+    return false;
+  }
+
   document.addEventListener('click', function(e){
-    var countBtn = e.target.closest('.count-btn');
+    if (handleRoundClick(e)) return;
+
+    var countBtn = e.target.closest('.count-btn[data-team]');
     if (countBtn){ setCount(parseInt(countBtn.dataset.team, 10), parseInt(countBtn.dataset.count, 10)); return; }
 
     var removeBtn = e.target.closest('.remove-team-btn');
     if (removeBtn){ removeTeam(parseInt(removeBtn.dataset.removeTeam, 10)); return; }
+
+    var guideGenderBtn = e.target.closest('.guide-gender-btn');
+    if (guideGenderBtn){
+      currentGuideGender = guideGenderBtn.dataset.gender;
+      document.querySelectorAll('.guide-gender-btn').forEach(function(b){
+        var on = b.dataset.gender === currentGuideGender;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      var kept = Array.from(document.querySelectorAll('.guide-score-input')).map(function(inp){ return inp.value; });
+      renderGuideContent(currentGuideBana);
+      kept.forEach(function(v, i){
+        var inp = document.getElementById('guide-score-' + (i + 1));
+        if (inp) inp.value = v;
+      });
+      updateGuideSummary();
+      return;
+    }
+
+    var genderBtn = e.target.closest('.gender-btn[data-target]');
+    if (genderBtn){
+      var gTarget = genderBtn.dataset.target;
+      var g = genderBtn.dataset.gender;
+      playerGender[gTarget] = playerGender[gTarget] === g ? null : g;
+      document.querySelectorAll('.gender-btn[data-target="' + gTarget + '"]').forEach(function(b){
+        var on = b.dataset.gender === playerGender[gTarget];
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      var gBanaSel = document.getElementById('course-bana-' + gTarget);
+      var gTeeSel = document.getElementById('course-tee-' + gTarget);
+      var keep = gTeeSel.value;
+      gTeeSel.innerHTML = teeOptionsHtml(gBanaSel.value, keep, playerGender[gTarget]);
+      gTeeSel.value = keep;
+      if (gTeeSel.value !== keep) gTeeSel.value = '';
+      return;
+    }
 
     var saveCourseBtn = e.target.closest('.save-course-btn');
     if (saveCourseBtn){
@@ -1364,7 +1647,31 @@
     this.textContent = nowHidden ? '🏌️ Visa banguide' : '🏌️ Dölj banguide';
   });
 
+  document.getElementById('round-players').innerHTML = [0, 1, 2, 3].map(roundPlayerHtml).join('');
+  document.getElementById('round-bana-select').innerHTML = guideBanaOptionsHtml();
+  loadRound();
+  document.getElementById('round-bana-select').value = round.bana;
+  renderRoundPlayers();
+
+  document.getElementById('toggle-round-btn').addEventListener('click', function(){
+    var section = document.getElementById('round-section');
+    var nowHidden = !section.hidden;
+    section.hidden = nowHidden;
+    this.classList.toggle('active', !nowHidden);
+    this.textContent = nowHidden ? '📝 Scorekort för rundan' : '📝 Dölj scorekortet';
+  });
+
   document.addEventListener('change', function(e){
+    if (e.target.id === 'round-bana-select'){
+      round.bana = e.target.value;
+      renderRoundPlayers();
+      saveRound();
+      return;
+    }
+    if (e.target.closest && e.target.closest('.round-player')){
+      handleRoundField(e.target);
+      return;
+    }
     if (e.target.classList && e.target.classList.contains('adv-toggle')){
       document.getElementById(e.target.dataset.target).hidden = !e.target.checked;
       renderAll();
@@ -1372,7 +1679,7 @@
     if (e.target.classList && e.target.classList.contains('course-bana-select')){
       var banaTarget = e.target.dataset.target;
       var teeSel = document.getElementById('course-tee-' + banaTarget);
-      teeSel.innerHTML = teeOptionsHtml(e.target.value, '');
+      teeSel.innerHTML = teeOptionsHtml(e.target.value, '', playerGender[banaTarget]);
       teeSel.value = '';
       teeSel.disabled = !e.target.value;
     }
@@ -1394,6 +1701,10 @@
   });
 
   document.addEventListener('input', function(e){
+    if (e.target.closest && e.target.closest('.round-player')){
+      handleRoundField(e.target);
+      return;
+    }
     if (e.target.classList && e.target.classList.contains('sc-score-input')){
       var holeInput = document.getElementById('guide-score-' + e.target.dataset.hole);
       if (holeInput) holeInput.value = e.target.value;
