@@ -403,7 +403,7 @@
   .round-hcp-readout{ font-size:0.88rem; color:var(--ink-600); line-height:1.4; }
   .round-hcp-readout strong{ color:var(--gold-600); font-size:1.05rem; }
 
-  .round-card{ display:flex; flex-direction:column; gap:10px; min-width:0; }
+  .round-card{ display:flex; flex-direction:column; gap:10px; min-width:0; container-type:inline-size; }
   .round-card-actions{ display:flex; justify-content:flex-end; align-items:center; gap:10px; flex-wrap:wrap; }
   .round-quickpick{ display:flex; flex-direction:column; gap:8px; min-width:0; }
   .round-quickpick:empty{ display:none; }
@@ -453,18 +453,22 @@
   table.rh-table th:first-child, table.rh-table td:first-child{ text-align:left; font-weight:700; overflow-wrap:anywhere; }
   .rh-scores{ font-size:0.82rem; color:var(--ink-600); margin:4px 0; line-height:1.5; font-variant-numeric:tabular-nums; }
   .rh-scores strong{ color:var(--ink-900); }
-  /* Fasta kolumnbredder: spelare 1 står närmast hålkolumnerna och fler spelare läggs till åt höger. */
+  /* Fasta kolumnbredder: spelare 1 står närmast hålkolumnerna och fler spelare läggs till åt höger.
+     Tabellen får en uträknad bredd (--rc-count sätts från JS), annars ignoreras table-layout:fixed
+     och långa spelarnamn trycker ut kolumnerna. */
   table.round-card-table{
-    width:auto;
+    --rc-hole:2.8em; --rc-num:2.3em; --rc-player-max:3.6em;
+    /* Spelarkolumnen krymper om fyra spelare inte får plats i scorekortets bredd (100cqw). */
+    --rc-player:min(var(--rc-player-max), calc((100cqw - var(--rc-hole) - 2 * var(--rc-num)) / var(--rc-count, 1)));
+    width:calc(var(--rc-hole) + 2 * var(--rc-num) + var(--rc-count, 1) * var(--rc-player));
     align-self:flex-start;
     border-collapse:collapse;
     table-layout:fixed;
     font-variant-numeric:tabular-nums;
   }
-  table.round-card-table col.rc-col-player{ width:3.6em; }
-  table.round-card-table col.rc-col-hole{ width:2.8em; }
-  table.round-card-table col.rc-col-par{ width:2.3em; }
-  table.round-card-table col.rc-col-idx{ width:2.3em; }
+  table.round-card-table col.rc-col-player{ width:var(--rc-player); }
+  table.round-card-table col.rc-col-hole{ width:var(--rc-hole); }
+  table.round-card-table col.rc-col-par, table.round-card-table col.rc-col-idx{ width:var(--rc-num); }
   table.round-card-table th, table.round-card-table td{
     padding:4px 2px;
     text-align:center;
@@ -487,7 +491,16 @@
     font-size:0.85rem; color:var(--ink-900);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-  .rc-ch{ display:block; font-size:0.72rem; font-weight:600; color:var(--gold-600); }
+  .rc-ch{ display:block; font-size:0.72rem; font-weight:600; color:var(--gold-600); white-space:nowrap; }
+  /* Smala scorekort (små telefoner, fyra spelare): namnet får två rader och "hcp" döljs framför siffran. */
+  @container (max-width:300px){
+    .rc-name{
+      font-size:0.72rem; line-height:1.15;
+      white-space:normal; overflow-wrap:anywhere;
+      display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    }
+    .rc-ch-label{ display:none; }
+  }
   table.round-card-table td.rc-hole{ font-weight:700; color:var(--ink-900); }
   .rc-hole-lap{ display:block; font-size:0.68rem; font-weight:500; color:var(--ink-600); line-height:1; }
   table.round-card-table td.rc-idx{ font-size:0.8rem; color:var(--ink-600); }
@@ -533,12 +546,7 @@
   .rc-clear-btn:hover{ color:var(--red-600); border-color:var(--red-600); }
   @media (max-width:520px){
     .round-section.card{ padding:16px 12px; }
-    table.round-card-table col.rc-col-hole{ width:2.3em; }
-    table.round-card-table col.rc-col-par, table.round-card-table col.rc-col-idx{ width:1.9em; }
-    table.round-card-table col.rc-col-player{ width:3.1em; }
-  }
-  @media (max-width:350px){
-    table.round-card-table col.rc-col-player{ width:2.7em; }
+    table.round-card-table{ --rc-hole:2.3em; --rc-num:1.9em; --rc-player-max:3.1em; }
   }
   .guide-section{ display:flex; flex-direction:column; gap:12px; }
   .guide-picker-row{ display:flex; gap:14px; flex-wrap:wrap; }
@@ -679,6 +687,10 @@
   /* iOS Safari zoomar in vid fokus på fält under 16px. */
   @media (pointer:coarse){
     .advanced-grid input, .course-bana-select, .course-tee-select, .round-select{ font-size:16px; }
+    /* Större tryckytor för tummen. */
+    .count-btn, .gender-btn{ min-height:38px; }
+    .remove-team-btn{ min-width:38px; min-height:38px; }
+    .qp-edit-btn{ padding:10px 6px; }
   }
 </style>
 
@@ -1799,7 +1811,7 @@
     wrap.innerHTML =
       '<h2 class="leaderboard-title">Scorekort</h2>' +
       '<p class="guide-note">' + note + '</p>' +
-      '<table class="round-card-table">' + cols + '<thead>' + head + '</thead><tbody>' + body + '</tbody></table>' +
+      '<table class="round-card-table" style="--rc-count:' + count + '">' + cols + '<thead>' + head + '</thead><tbody>' + body + '</tbody></table>' +
       '<div class="round-card-actions">' +
         '<button type="button" class="rc-clear-btn" id="rc-clear-btn">Rensa slag</button>' +
         '<button type="button" class="add-team-btn active" id="rc-save-btn">💾 Spara resultat</button>' +
@@ -1838,7 +1850,7 @@
     for (var i = 0; i < round.count; i++){
       var r = roundPlayerResult(i);
       setCell('rc-name-' + i, r.name);
-      setCell('rc-ch-' + i, r.ch == null ? 'hcp –' : 'hcp ' + r.ch);
+      document.getElementById('rc-ch-' + i).innerHTML = '<span class="rc-ch-label">hcp </span>' + (r.ch == null ? '–' : r.ch);
 
       r.holes.forEach(function(h, hi){
         var s = h.strokes;
