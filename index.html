@@ -805,7 +805,7 @@
   // Inbyggd bansdatabas: golfbanor i Uppsala län + fem kända Stockholmsklubbar.
   // [bana, ort, tee, kön ("H"/"D"), slope, CR, par] — null där uppgiften inte gick att verifiera.
   // Källa: klubbarnas scorekort + 1golf.eu/GolfPass (sammanställt av användaren, hämtat sep 2026).
-  var PRESET_RAW = [["Upsala GK - Stora (18 hål)","Uppsala","62","H",140,74.5,72],["Upsala GK - Stora (18 hål)","Uppsala","59","H",130,72.5,72],["Upsala GK - Stora (18 hål)","Uppsala","56","H",128,71.3,72],["Upsala GK - Stora (18 hål)","Uppsala","51","H",123,69.5,72],["Upsala GK - Stora (18 hål)","Uppsala","51","D",138,73.8,72],["Upsala GK - Stora (18 hål)","Uppsala","47","H",119,65.5,72],["Upsala GK - Stora (18 hål)","Uppsala","47","D",130,71.3,72],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Vit","H",null,68.0,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Svart","D",null,73.2,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","H",null,66.9,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","D",null,72.3,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","H",null,63.5,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","D",null,67.8,70],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Gul","H",null,58.1,62],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Röd","D",null,57.8,62],["GolfUppsala Söderby (18 hål)","Uppsala","67","H",135,74.0,73],["GolfUppsala Söderby (18 hål)","Uppsala","64","H",133,73.3,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","H",125,70.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","D",139,76.5,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","H",119,67.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","D",128,73.8,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","H",110,64.9,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","D",123,70.1,73],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","H",93,59.1,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","D",98,60.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","H",91,58.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","D",95,59.4,30],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Vit","H",137,73.0,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","H",131,71.8,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","D",137,76.6,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","H",128,68.3,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","D",130,73.7,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","H",122,65.9,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","D",124,70.7,72],["Grönlund GK (18 hål)","Uppsala (Almunge)","Vit","H",125,71.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","H",123,69.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","H",117,67.3,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","D",131,75.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","D",126,73.0,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","H",109,64.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","D",115,69.6,71],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Vit","H",134,72.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Gul","H",127,70.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Blå","H",120,68.2,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Röd","H",112,64.9,null],["Vassunda GK (18 hål)","Knivsta","Vit","H",133,73.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","H",129,71.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","D",134,77.2,72],["Vassunda GK (18 hål)","Knivsta","Blå","H",124,69.0,72],["Vassunda GK (18 hål)","Knivsta","Blå","D",129,74.4,72],["Vassunda GK (18 hål)","Knivsta","Röd","H",121,67.1,72],["Vassunda GK (18 hål)","Knivsta","Röd","D",124,72.0,72],["Enköpings GK (18 hål)","Enköping","Gul","H",121,69.4,71],["Enköpings GK (18 hål)","Enköping","Gul","D",133,75.3,71],["Enköpings GK (18 hål)","Enköping","Blå","H",119,67.3,71],["Enköpings GK (18 hål)","Enköping","Röd","H",114,65.0,71],["Enköpings GK (18 hål)","Enköping","Röd","D",122,70.1,71],["Enköpings GK (18 hål)","Enköping","Blå","D",126,72.7,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","H",116,67.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","D",126,73.0,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","H",121,69.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","D",131,75.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","H",111,65.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","D",120,70.2,71],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","H",122,67.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","D",126,73.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Orange","D",112,66.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","H",126,69.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","D",131,75.7,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","H",119,65.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","D",121,70.9,70],["Örbyhus GK (18 hål)","Tierp","Vit","H",148,76.0,72],["Örbyhus GK (18 hål)","Tierp","Gul","H",142,73.2,72],["Örbyhus GK (18 hål)","Tierp","Gul","D",143,79.5,72],["Örbyhus GK (18 hål)","Tierp","Blå","H",138,71.2,72],["Örbyhus GK (18 hål)","Tierp","Blå","D",138,77.0,72],["Örbyhus GK (18 hål)","Tierp","Röd","H",133,68.5,72],["Örbyhus GK (18 hål)","Tierp","Röd","D",131,73.8,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Vit","H",131,72.9,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","H",128,71.1,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","D",135,77.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","H",123,69.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","D",129,74.5,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","H",115,65.2,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","D",119,69.8,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","H",137,72.6,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","D",139,80.5,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","H",128,67.9,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","D",127,74.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 56 (motsv. Vit)","H",131,70.2,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","H",130,69.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","D",136,75.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","H",125,67.4,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","D",130,72.9,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","H",122,65.7,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","D",126,70.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 38 (Orange, dam)","D",114,65.6,72],["Stockholms GK - Kevinge (18 hål)","Danderyd","Vit","H",129,69.9,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","H",126,68.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","D",136,74.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","H",122,66.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","D",131,71.8,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","H",119,65.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","D",126,70.0,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Svart","H",120,67.4,69],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee I","H",139,74.1,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","H",135,71.6,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","D",142,78.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","H",131,70.0,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","D",138,76.3,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","H",126,66.9,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","D",132,73.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee V","D",121,68.1,72],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Vit","H",136,71.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","H",132,70.4,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","D",133,76.0,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","H",129,68.5,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","D",128,73.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","H",126,66.9,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","D",123,71.8,71],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","H",109,64.3,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","D",120,68.8,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","H",105,62.7,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","D",113,65.7,68],["Ullna Golf Club (18 hål)","Åkersberga","Vit","H",143,73.8,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","H",143,71.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","D",139,78.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","H",138,69.0,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","D",137,75.6,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","H",115,64.5,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","D",132,69.8,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Svart","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Umeå GK (9 hål)","Umeå","Gul","H",124,69.3,72],["Umeå GK (9 hål)","Umeå","Röd","D",121,70.1,72]];
+  var PRESET_RAW = [["Upsala GK - Stora (18 hål)","Uppsala","62","H",140,74.5,72],["Upsala GK - Stora (18 hål)","Uppsala","59","H",130,72.5,72],["Upsala GK - Stora (18 hål)","Uppsala","56","H",128,71.3,72],["Upsala GK - Stora (18 hål)","Uppsala","51","H",123,69.5,72],["Upsala GK - Stora (18 hål)","Uppsala","51","D",138,73.8,72],["Upsala GK - Stora (18 hål)","Uppsala","47","H",119,65.5,72],["Upsala GK - Stora (18 hål)","Uppsala","47","D",130,71.3,72],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Vit","H",null,68.0,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Svart","D",null,73.2,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","H",null,66.9,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Gul","D",null,72.3,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","H",null,63.5,70],["Upsala GK - Mellanbanan (9 hål)","Uppsala","Röd","D",null,67.8,70],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Gul","H",null,58.1,62],["Upsala GK - Lilla 9 (P&P, 9 hål)","Uppsala","Röd","D",null,57.8,62],["GolfUppsala Söderby (18 hål)","Uppsala","67","H",135,74.0,73],["GolfUppsala Söderby (18 hål)","Uppsala","64","H",133,73.3,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","H",125,70.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","60","D",139,76.5,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","H",119,67.6,73],["GolfUppsala Söderby (18 hål)","Uppsala","54","D",128,73.8,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","H",110,64.9,73],["GolfUppsala Söderby (18 hål)","Uppsala","48","D",123,70.1,73],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","H",93,59.1,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Gul","D",98,60.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","H",91,58.5,30],["GolfUppsala Söderby Executive (9 hål)","Uppsala","Röd","D",95,59.4,30],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Vit","H",137,73.0,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","H",131,71.8,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Gul","D",137,76.6,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","H",128,68.3,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Blå","D",130,73.7,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","H",122,65.9,72],["GolfUppsala Edenhof (18 hål)","Uppsala (Bälinge)","Grön","D",124,70.7,72],["Grönlund GK (18 hål)","Uppsala (Almunge)","Vit","H",125,71.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","H",123,69.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","H",117,67.3,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Gul","D",131,75.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Blå","D",126,73.0,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","H",109,64.4,71],["Grönlund GK (18 hål)","Uppsala (Almunge)","Röd","D",115,69.6,71],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Vit","H",134,72.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Gul","H",127,70.5,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Blå","H",120,68.2,null],["Wattholma GK (18 hål)","Uppsala (Vattholma)","Röd","H",112,64.9,null],["Vassunda GK (18 hål)","Knivsta","Vit","H",133,73.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","H",129,71.3,72],["Vassunda GK (18 hål)","Knivsta","Gul","D",134,77.2,72],["Vassunda GK (18 hål)","Knivsta","Blå","H",124,69.0,72],["Vassunda GK (18 hål)","Knivsta","Blå","D",129,74.4,72],["Vassunda GK (18 hål)","Knivsta","Röd","H",121,67.1,72],["Vassunda GK (18 hål)","Knivsta","Röd","D",124,72.0,72],["Enköpings GK (18 hål)","Enköping","Gul","H",121,69.4,71],["Enköpings GK (18 hål)","Enköping","Gul","D",133,75.3,71],["Enköpings GK (18 hål)","Enköping","Blå","H",119,67.3,71],["Enköpings GK (18 hål)","Enköping","Röd","H",114,65.0,71],["Enköpings GK (18 hål)","Enköping","Röd","D",122,70.1,71],["Enköpings GK (18 hål)","Enköping","Blå","D",126,72.7,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","H",116,67.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Blå","D",126,73.0,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","H",121,69.8,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Gul","D",131,75.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","H",111,65.5,71],["Friiberghs GK (18 hål)","Enköping (Örsundsbro)","Röd","D",120,70.2,71],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","H",122,67.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Blå","D",126,73.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Orange","D",112,66.4,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","H",126,69.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Gul","D",131,75.7,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","H",119,65.2,70],["Älvkarleby GK (18 hål)","Älvkarleby","Röd","D",121,70.9,70],["Örbyhus GK (18 hål)","Tierp","Vit","H",148,76.0,72],["Örbyhus GK (18 hål)","Tierp","Gul","H",142,73.2,72],["Örbyhus GK (18 hål)","Tierp","Gul","D",143,79.5,72],["Örbyhus GK (18 hål)","Tierp","Blå","H",138,71.2,72],["Örbyhus GK (18 hål)","Tierp","Blå","D",138,77.0,72],["Örbyhus GK (18 hål)","Tierp","Röd","H",133,68.5,72],["Örbyhus GK (18 hål)","Tierp","Röd","D",131,73.8,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Vit","H",131,72.9,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","H",128,71.1,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Gul","D",135,77.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","H",123,69.0,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Blå","D",129,74.5,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","H",115,65.2,72],["Burviks GK (18 hål)","Uppsala (Knutby)","Röd","D",119,69.8,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","H",137,72.6,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Gul","D",139,80.5,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","H",128,67.9,72],["Olandsbygdens GK (9 hål, dubbelrunda)","Östhammar (Alunda)","Röd","D",127,74.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 56 (motsv. Vit)","H",131,70.2,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","H",130,69.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 55 (motsv. Gul)","D",136,75.6,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","H",125,67.4,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 51 (motsv. Blå)","D",130,72.9,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","H",122,65.7,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 47 (motsv. Röd)","D",126,70.8,72],["Öregrunds GK (18 hål)","Östhammar (Öregrund)","Tee 38 (Orange, dam)","D",114,65.6,72],["Stockholms GK - Kevinge (18 hål)","Danderyd","Vit","H",129,69.9,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","H",126,68.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Gul","D",136,74.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","H",122,66.5,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Blå","D",131,71.8,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","H",119,65.2,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Röd","D",126,70.0,69],["Stockholms GK - Kevinge (18 hål)","Danderyd","Svart","H",120,67.4,69],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee I","H",139,74.1,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","H",135,71.6,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee II","D",142,78.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","H",131,70.0,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee III","D",138,76.3,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","H",126,66.9,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee IV","D",132,73.2,72],["Kungl. Drottningholms GK (18 hål)","Ekerö (Drottningholm)","Tee V","D",121,68.1,72],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Vit","H",136,71.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","H",132,70.4,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Gul","D",133,76.0,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","H",129,68.5,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Blå","D",128,73.7,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","H",126,66.9,71],["Djursholms GK (18 hål)","Danderyd (Djursholm)","Röd","D",123,71.8,71],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","H",109,64.3,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Gul","D",120,68.8,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","H",105,62.7,68],["Djursholms GK - 9an (9 hål)","Danderyd (Djursholm)","Röd","D",113,65.7,68],["Ullna Golf Club (18 hål)","Åkersberga","Vit","H",143,73.8,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","H",143,71.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Gul","D",139,78.4,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","H",138,69.0,72],["Ullna Golf Club (18 hål)","Åkersberga","Guld","D",137,75.6,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","H",115,64.5,72],["Ullna Golf Club (18 hål)","Åkersberga","Röd","D",132,69.8,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Svart","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Stadium Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Vit","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Gul","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Blå","H",null,null,72],["Bro Hof Slott GC - Castle Course (18 hål)","Bro (Upplands-Bro)","Röd","H",null,null,72],["Umeå GK - Gul slinga (9 hål)","Umeå","Gul","H",124,69.3,72],["Umeå GK - Gul slinga (9 hål)","Umeå","Röd","D",121,70.1,72],["Umeå GK - Röd slinga (9 hål)","Umeå","Gul","H",null,null,null],["Umeå GK - Röd slinga (9 hål)","Umeå","Röd","D",null,null,null],["Umeå GK (18 hål)","Umeå","Vit","H",134,72.5,73],["Umeå GK (18 hål)","Umeå","Gul","H",130,70.7,73],["Umeå GK (18 hål)","Umeå","Gul","D",138,76.8,73],["Umeå GK (18 hål)","Umeå","Blå","H",123,69.2,73],["Umeå GK (18 hål)","Umeå","Blå","D",132,74.5,73],["Umeå GK (18 hål)","Umeå","Röd","H",114,66.4,73],["Umeå GK (18 hål)","Umeå","Röd","D",127,71.4,73],["Umeå GK (18 hål)","Umeå","Orange","D",116,67.6,73]];
   var PRESET_COURSES = PRESET_RAW.map(function(r){
     return { bana: r[0], ort: r[1], tee: r[2], kon: r[3], slope: r[4], cr: r[5], par: r[6] };
   });
@@ -911,7 +911,7 @@
       ]
     },
     // Gul/röd var omkastade i källarket på hål 3, 4, 5, 6 och 9; rättat mot hålbilderna (röd tee ligger närmast).
-    "Umeå GK (9 hål)": {
+    "Umeå GK - Gul slinga (9 hål)": {
       refTee: "Gul",
       refTeeD: "Röd",
       imageSlug: "umea",
@@ -926,8 +926,43 @@
         {par:5, index:9,  length:490, lengthD:410},
         {par:3, index:17, length:113, lengthD:97}
       ]
+    },
+    // Källarket saknar par; par enligt Erik (hål 9 par 5). Längder för tee Gul (herr) och Röd (dam).
+    "Umeå GK - Röd slinga (9 hål)": {
+      refTee: "Gul",
+      refTeeD: "Röd",
+      imageSlug: "umea-rod",
+      holes: [
+        {par:4, index:12, length:314, lengthD:245},
+        {par:3, index:16, length:138, lengthD:114},
+        {par:5, index:14, length:440, lengthD:404},
+        {par:4, index:6,  length:315, lengthD:275},
+        {par:4, index:2,  length:353, lengthD:319},
+        {par:3, index:4,  length:170, lengthD:125},
+        {par:5, index:8,  length:442, lengthD:407},
+        {par:4, index:18, length:345, lengthD:299},
+        {par:5, index:10, length:430, lengthD:367}
+      ]
     }
   };
+
+  // Umeå GK:s 18-hålsbana: gul slinga (udda index) som hål 1–9 och röd slinga (jämna index) som hål 10–18.
+  (function(){
+    var gul = HOLE_DATA["Umeå GK - Gul slinga (9 hål)"], rod = HOLE_DATA["Umeå GK - Röd slinga (9 hål)"];
+    function withImg(loop){
+      return loop.holes.map(function(h, i){
+        return Object.assign({ img: 'images/' + loop.imageSlug + '_hal' + (i + 1) + '.png' }, h);
+      });
+    }
+    HOLE_DATA["Umeå GK (18 hål)"] = {
+      refTee: "Gul", refTeeD: "Röd", imageSlug: "umea",
+      holes: withImg(gul).concat(withImg(rod))
+    };
+  })();
+
+  // Banor som bytt namn; används så att sparade rundor och snabbval följer med.
+  var BANA_RENAMES = { "Umeå GK (9 hål)": "Umeå GK - Gul slinga (9 hål)" };
+  function currentBanaName(name){ return BANA_RENAMES[name] || name; }
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, function(ch){
@@ -1126,7 +1161,7 @@
 
     holes.forEach(function(h, i){
       var holeNum = i + 1;
-      var img = 'images/' + data.imageSlug + '_hal' + holeNum + '.png';
+      var img = data.holes[i].img || 'images/' + data.imageSlug + '_hal' + holeNum + '.png';
       html +=
         '<div class="guide-hole">' +
           '<div class="guide-hole-header">' +
@@ -1576,7 +1611,8 @@
     try {
       var s = JSON.parse(localStorage.getItem(ROUND_KEY) || 'null');
       if (!s) return;
-      round.bana = HOLE_DATA[s.bana] ? s.bana : '';
+      var bana = currentBanaName(s.bana);
+      round.bana = HOLE_DATA[bana] ? bana : '';
       round.count = Math.min(4, Math.max(1, parseInt(s.count, 10) || 1));
       (s.players || []).slice(0, 4).forEach(function(p, i){
         round.players[i] = {
@@ -1599,7 +1635,7 @@
   }
 
   // En 9-hålsbana vars par i databasen är dubbla hålens par spelas som två varv.
-  // Varv 1 har udda index och varv 2 får nästa jämna (index + 1), som på vanliga 9-hålsscorekort.
+  // Varv 2 får den andra halvan av indexen: udda index blir index + 1, jämna blir index − 1.
   function roundLaps(){
     var data = HOLE_DATA[round.bana];
     if (!data) return 1;
@@ -1613,7 +1649,9 @@
     if (!data) return [];
     var base = holesFor(data, gender);
     if (roundLaps() === 1) return base;
-    return base.concat(base.map(function(h){ return { par: h.par, index: h.index + 1, length: h.length }; }));
+    return base.concat(base.map(function(h){
+      return { par: h.par, index: h.index % 2 ? h.index + 1 : h.index - 1, length: h.length };
+    }));
   }
 
   function roundTeeCourse(p){
@@ -1756,7 +1794,7 @@
     body += playerRow('rc-diff-row', 'Netto +/−', 'netdiff');
 
     var note = 'Skriv in slagen hål för hål. Prickarna i rutan visar spelarens hcp-slag på hålet.';
-    if (laps === 2) note += ' Banan spelas två varv; varv 2 har index +1 (jämna index).';
+    if (laps === 2) note += ' Banan spelas två varv; varv 2 har slingans andra index (udda blir jämna och tvärtom).';
 
     wrap.innerHTML =
       '<h2 class="leaderboard-title">Scorekort</h2>' +
@@ -1827,6 +1865,7 @@
     try {
       var h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
       roundHistory = Array.isArray(h) ? h : [];
+      roundHistory.forEach(function(r){ r.bana = currentBanaName(r.bana); });
     } catch(e){ roundHistory = []; }
   }
 
@@ -1862,7 +1901,15 @@
   function loadKnown(){
     try {
       var k = JSON.parse(localStorage.getItem(KNOWN_KEY) || 'null');
-      if (Array.isArray(k)){ knownPlayers = k.filter(function(p){ return p && p.name; }); return; }
+      if (Array.isArray(k)){
+        knownPlayers = k.filter(function(p){ return p && p.name; });
+        knownPlayers.forEach(function(p){
+          var tees = {};
+          Object.keys(p.tees || {}).forEach(function(b){ tees[currentBanaName(b)] = p.tees[b]; });
+          p.tees = tees;
+        });
+        return;
+      }
     } catch(e){}
     // Första gången: bygg listan från redan sparade rundor (äldst först så att de senaste hamnar överst).
     roundHistory.slice().reverse().forEach(function(h){
